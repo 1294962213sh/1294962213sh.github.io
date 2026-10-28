@@ -109,7 +109,7 @@
   }
   .rsvp::before { content: ""; position: absolute; inset: 7px; border: 1px solid var(--paper-line); border-radius: 3px; pointer-events: none; }
   .rsvp > * { position: relative; }
-  .rsvp h2 { font-family: var(--display); font-weight: 500; font-size: 28px; margin: 0 0 2px; color: var(--card); line-height: 1.1; }
+  .rsvp h2 { font-family: var(--display); font-weight: 500; font-size: 28px; margin: 0 0 18px; color: var(--card); line-height: 1.1; }
   .rsvp .lede { margin: 0 0 18px; color: var(--ink-soft); font-size: 14px; }
   .field { display: grid; gap: 8px; margin-bottom: 16px; }
   .field label, .field .flbl { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); font-weight: 500; }
@@ -262,7 +262,6 @@
   <section class="rsvp" aria-label="RSVP">
     <div id="form-view">
       <h2>Will you join us?</h2>
-      <p class="lede">Just let us know you're coming so we pour enough.</p>
       <form id="rsvp" novalidate>
         <div class="field">
           <label for="name">Your name</label>
@@ -275,7 +274,7 @@
             <button type="button" id="att-no" aria-pressed="false">Can't make it</button>
           </div>
         </div>
-        <div class="field" id="dinner-field" hidden>
+        <div class="field" id="dinner-field">
           <div class="toggle-row">
             <div class="q">Staying for dinner after?<small>Optional, right after the tasting</small></div>
             <button type="button" class="toggle" id="dinner" role="switch" aria-checked="false" aria-label="Staying for dinner"></button>
@@ -365,7 +364,7 @@ const setAtt = v => {
   attending = v;
   $("att-yes").setAttribute("aria-pressed", v === true);
   $("att-no").setAttribute("aria-pressed", v === false);
-  $("dinner-field").hidden = v !== true;
+  $("dinner-field").hidden = v === false;
   if (v !== true) { dinner = false; $("dinner").setAttribute("aria-checked", "false"); }
   $("err").hidden = true;
 };
