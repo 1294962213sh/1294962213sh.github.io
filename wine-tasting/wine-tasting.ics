@@ -26,6 +26,6 @@ DTSTAMP:20261027T220000Z
 DTSTART;TZID=America/New_York:20261204T180000
 DTEND;TZID=America/New_York:20261204T190000
 SUMMARY:Ladies' Wine Tasting
-DESCRIPTION:A toast to the end of the semester\, with a sommelier. Guided tasting\, about $50 per person. Optional dinner to follow.
+DESCRIPTION:A toast to the end of the semester. Wine\, conversation and a sommelier to guide us. About $50 each. Optional dinner after.
 END:VEVENT
 END:VCALENDAR
