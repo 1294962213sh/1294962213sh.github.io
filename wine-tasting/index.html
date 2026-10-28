@@ -350,6 +350,16 @@ $("cal-google").href = "https://calendar.google.com/calendar/render?action=TEMPL
   + (EVENT.address ? "&location=" + encodeURIComponent(EVENT.address) : "")
   + "&details=" + encodeURIComponent(EVENT.sub + ", " + EVENT.subtitle + ". Optional dinner to follow.");
 
+function showThanks(name, att, din, returning) {
+  const first = name.split(" ")[0];
+  $("thanks-h").textContent = returning
+    ? (att ? "You're on the list, " + first : "We have your reply, " + first)
+    : (att ? "See you there, " + first + "!" : "We'll miss you, " + first);
+  $("thanks-p").textContent = att
+    ? (din ? "You're down for the tasting and dinner." : "You're down for the tasting.")
+    : (returning ? "You said you can't make it." : "Thanks for letting us know.");
+  $("form-view").hidden = true; $("thanks-view").hidden = false;
+}
 let attending = null, dinner = false;
 const setAtt = v => {
   attending = v;
@@ -365,7 +375,14 @@ $("dinner").onclick = () => { dinner = !dinner; $("dinner").setAttribute("aria-c
 
 try {
   const saved = JSON.parse(localStorage.getItem("rsvp:" + EVENT.title) || "null");
-  if (saved && saved.name) $("name").value = saved.name;
+  if (saved && saved.name) {
+    $("name").value = saved.name;
+    if (typeof saved.attending === "boolean") {
+      setAtt(saved.attending);
+      if (saved.attending && saved.dinner) { dinner = true; $("dinner").setAttribute("aria-checked", "true"); }
+      showThanks(saved.name, saved.attending, !!saved.dinner, true);
+    }
+  }
 } catch (e) {}
 
 const isPreview = /claude\.ai$/.test(location.hostname);
@@ -391,12 +408,7 @@ $("rsvp").onsubmit = e => {
   try { localStorage.setItem("rsvp:" + EVENT.title, JSON.stringify({ name, attending, dinner })); } catch (e) {}
 
   setTimeout(() => {
-    const first = name.split(" ")[0];
-    $("thanks-h").textContent = attending ? "See you there, " + first + "!" : "We'll miss you, " + first;
-    $("thanks-p").textContent = attending
-      ? (dinner ? "You're down for the tasting and dinner." : "You're down for the tasting.")
-      : "Thanks for letting us know.";
-    $("form-view").hidden = true; $("thanks-view").hidden = false;
+    showThanks(name, attending, dinner, false);
     window.scrollTo({ top: document.querySelector(".rsvp").offsetTop - 12, behavior: "smooth" });
   }, isPreview ? 400 : 900);
 };
