@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1E0A15">
+<meta name="description" content="A toast to the end of the semester, with a sommelier. Friday, December 4 · 6–7pm. Tap to RSVP.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Invitations">
+<meta property="og:image" content="https://1294962213sh.github.io/wine-tasting/preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Ladies' Wine Tasting</title>
+<meta property="og:title" content="Ladies' Wine Tasting · Dec 4">
+<meta property="og:description" content="A toast to the end of the semester, with a sommelier. Friday, December 4 · 6–7pm. Tap to RSVP.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@400;500&display=swap">
+<style>
+  /* Layout: one invitation card on a midnight-plum ground; RSVP below on champagne paper. Single committed look (dark). */
+  :root {
+    --ground: #1E0A15;        /* page */
+    --card: #3A1226;          /* invitation card top */
+    --card-deep: #220A18;     /* invitation card bottom */
+    --gold: #D6B36A;          /* champagne gold: frame, line art, rules */
+    --gold-dim: rgba(214,179,106,.55);
+    --cream: #F6E9D2;         /* display text on card */
+    --cream-soft: #E3CFA6;    /* secondary text on card */
+    --berry: #B1304A;         /* holly berries, wine */
+    --pine: #4C6B55;          /* evergreen sprigs */
+    --paper: #F7EFE1;         /* RSVP card */
+    --paper-line: #D9C9AA;
+    --ink: #2B1620;
+    --ink-soft: #6F5B62;
+    --display: "Cormorant Garamond", "Garamond", "Georgia", serif;
+    --body: "Jost", "Futura", "Helvetica Neue", Arial, sans-serif;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--cream);
+    font-family: var(--body); font-size: 16px; line-height: 1.5;
+    padding-block: 18px 36px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 430px; margin: 0 auto; display: grid; gap: 16px; }
+
+  /* ---------- Invitation ---------- */
+  .invite {
+    position: relative; border-radius: 6px; overflow: hidden;
+    background: radial-gradient(120% 80% at 50% 0%, var(--card) 0%, var(--card-deep) 100%);
+    box-shadow: 0 30px 70px rgba(0,0,0,.5);
+    padding: 14px;
+  }
+  .frame {
+    position: relative; text-align: center;
+    border: 1px solid var(--gold); outline: 1px solid var(--gold-dim); outline-offset: 3px;
+    padding: 48px 16px 30px; min-width: 0;
+  }
+  .art { position: absolute; pointer-events: none; }
+  .corner { width: 118px; height: 118px; }
+  .corner.tl { top: -2px; left: -2px; }
+  .corner.br { bottom: -2px; right: -2px; transform: rotate(180deg); }
+  .sparkle { width: 12px; height: 12px; opacity: .7; }
+  .glass { display: block; margin: 0 auto 14px; width: 48px; height: 70px; }
+
+  .eyebrow {
+    margin: 0 0 6px; font-size: 11px; letter-spacing: .26em; text-transform: uppercase;
+    color: var(--gold); font-weight: 500;
+  }
+  .sub { margin: 0 0 14px; font-family: var(--display); font-style: italic; font-size: 19px; color: var(--cream-soft); }
+  h1 {
+    margin: 0; font-family: var(--display); font-weight: 500; font-style: italic;
+    font-size: clamp(38px, 10.5vw, 48px); line-height: 1; letter-spacing: .005em;
+    color: var(--cream); text-wrap: balance;
+  }
+  h1 span { display: block; font-style: normal; font-weight: 400; font-size: .62em; letter-spacing: .12em; text-transform: uppercase; margin-top: 10px; color: var(--cream-soft); }
+  .orn { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 18px auto 16px; color: var(--gold); }
+  .orn::before, .orn::after { content: ""; width: 56px; height: 1px; background: var(--gold); opacity: .8; }
+  .orn svg { width: 10px; height: 10px; }
+  .when { margin: 0; font-family: var(--display); font-size: 22px; font-weight: 600; color: var(--cream); line-height: 1.3; }
+  .where { margin: 2px 0 0; font-family: var(--display); font-size: 18px; color: var(--cream-soft); }
+  .note { margin: 16px auto 0; max-width: 30ch; font-family: var(--display); font-style: italic; font-size: 17px; line-height: 1.45; color: var(--cream-soft); }
+
+  .actions { margin-top: 22px; display: grid; gap: 8px; }
+  .actions .lbl { font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); opacity: .9; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; min-width: 0; }
+  .pill {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 0;
+    font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 500;
+    color: var(--cream); text-decoration: none; cursor: pointer;
+    border: 1px solid var(--gold-dim); border-radius: 999px; padding: 10px 10px; background: transparent;
+  }
+  .pill:hover { background: rgba(214,179,106,.1); border-color: var(--gold); }
+  .pill svg { width: 13px; height: 13px; flex: none; }
+  .pill[aria-disabled="true"] { opacity: .4; pointer-events: none; }
+  .pill:focus-visible, .btn:focus-visible, input:focus-visible, .seg button:focus-visible, .toggle:focus-visible, .linkbtn:focus-visible {
+    outline: 2px solid var(--gold); outline-offset: 2px;
+  }
+
+  /* ---------- RSVP ---------- */
+  .rsvp {
+    background: var(--paper); color: var(--ink); border-radius: 6px;
+    padding: 22px 18px 20px; box-shadow: 0 16px 40px rgba(0,0,0,.35);
+    color-scheme: light; position: relative;
+  }
+  .rsvp::before { content: ""; position: absolute; inset: 7px; border: 1px solid var(--paper-line); border-radius: 3px; pointer-events: none; }
+  .rsvp > * { position: relative; }
+  .rsvp h2 { font-family: var(--display); font-weight: 500; font-size: 28px; margin: 0 0 2px; color: var(--card); line-height: 1.1; }
+  .rsvp .lede { margin: 0 0 18px; color: var(--ink-soft); font-size: 14px; }
+  .field { display: grid; gap: 8px; margin-bottom: 16px; }
+  .field label, .field .flbl { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); font-weight: 500; }
+  input[type="text"] {
+    width: 100%; font: 17px var(--body); color: var(--ink);
+    padding: 12px 14px; border: 1px solid var(--paper-line); border-radius: 4px; background: #fff;
+  }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .seg button {
+    font: 500 14px var(--body); letter-spacing: .02em; padding: 13px 8px; border-radius: 4px; cursor: pointer;
+    border: 1px solid var(--card); background: #fff; color: var(--card);
+  }
+  .seg button[aria-pressed="true"] { background: var(--card); color: var(--cream); }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .toggle-row .q { font-size: 15px; color: var(--ink); }
+  .toggle-row .q small { display: block; color: var(--ink-soft); font-size: 12px; }
+  .toggle {
+    flex: none; width: 52px; height: 30px; border-radius: 999px; border: 0; cursor: pointer;
+    background: #CDBFA6; position: relative; transition: background .2s;
+  }
+  .toggle::after {
+    content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px;
+    border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.3);
+  }
+  .toggle[aria-checked="true"] { background: var(--berry); }
+  .toggle[aria-checked="true"]::after { transform: translateX(22px); }
+  .btn {
+    width: 100%; font: 500 14px var(--body); letter-spacing: .14em; text-transform: uppercase;
+    padding: 15px; border-radius: 4px; border: 0; cursor: pointer;
+    background: var(--card); color: var(--cream); margin-top: 2px;
+  }
+  .btn:hover { background: #4A1830; }
+  .btn:disabled { opacity: .6; cursor: default; }
+  .hint { font-size: 12px; color: var(--ink-soft); margin: 10px 0 0; text-align: center; }
+  .err { color: #9B1C2E; font-size: 14px; margin: 8px 0 0; }
+  .thanks { text-align: center; padding: 8px 0 2px; }
+  .thanks h2 { font-size: 30px; }
+  .thanks p { color: var(--ink-soft); margin: 6px 0 0; }
+  .linkbtn { margin-top: 14px; font: 500 13px var(--body); color: var(--berry); background: none; border: 0; text-decoration: underline; cursor: pointer; }
+  .foot { text-align: center; font-size: 10px; color: rgba(246,233,210,.5); letter-spacing: .2em; text-transform: uppercase; }
+  iframe.sink { position: absolute; width: 0; height: 0; border: 0; visibility: hidden; }
+
+  /* ---------- Motion: vine draws, berries pop, glass fills, sparkles twinkle. All visible at rest. ---------- */
+  .glass .liquid { transform-origin: 50% 100%; }
+  @media (prefers-reduced-motion: no-preference) {
+    .corner .vine { stroke-dasharray: 320; animation: draw 1.8s ease-out both; }
+    .corner .pop { animation: pop .5s ease-out both; }
+    .corner .pop:nth-of-type(1) { animation-delay: .9s } .corner .pop:nth-of-type(2) { animation-delay: 1.05s }
+    .corner .pop:nth-of-type(3) { animation-delay: 1.2s } .corner .pop:nth-of-type(4) { animation-delay: 1.35s }
+    .corner .pop:nth-of-type(5) { animation-delay: 1.5s }
+    .glass .liquid { animation: fill 1.4s cubic-bezier(.4,0,.2,1) .4s both, sway 5.5s ease-in-out 2s infinite; }
+    .glass .glint { animation: glint 4s ease-in-out 2.2s infinite; }
+    .sparkle { animation: twinkle 3.2s ease-in-out infinite; }
+    .sparkle.s2 { animation-delay: .8s; animation-duration: 4.1s } .sparkle.s3 { animation-delay: 1.6s; animation-duration: 2.7s } .sparkle.s4 { animation-delay: 2.3s; animation-duration: 3.6s } .sparkle.s5 { animation-delay: 1.1s; animation-duration: 4.6s }
+    .sparkle.s6 { animation-delay: 2.9s; animation-duration: 3.9s } .sparkle.s7 { animation-delay: .4s; animation-duration: 5.2s } .sparkle.s8 { animation-delay: 1.9s; animation-duration: 3.3s } .sparkle.s9 { animation-delay: 3.4s; animation-duration: 4.4s }
+    .frame { animation: breathe 6s ease-in-out 2s infinite; }
+    .frame::after { content: ""; position: absolute; inset: -1px; pointer-events: none; background: linear-gradient(115deg, transparent 42%, rgba(255,244,214,.07) 50%, transparent 58%); background-size: 260% 100%; animation: sweep 9s ease-in-out 2.5s infinite; }
+    h1, .when { background: linear-gradient(110deg, var(--cream) 40%, #FFF7E0 50%, var(--cream) 60%); background-size: 260% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: lift .8s ease-out both, sheen 7s ease-in-out 2.5s infinite; }
+    h1 span { -webkit-text-fill-color: var(--cream-soft); }
+    .corner { animation: glow 5s ease-in-out 2.5s infinite; }
+    .eyebrow, .sub, h1, .orn, .when, .where, .note, .actions { animation: lift .8s ease-out both; }
+    .eyebrow { animation-delay: .3s } .sub { animation-delay: .4s } h1 { animation-delay: .5s } .orn { animation-delay: .65s }
+    .when { animation-delay: .75s } .where { animation-delay: .85s } .note { animation-delay: 1s } .actions { animation-delay: 1.15s }
+  }
+  @keyframes draw { from { stroke-dashoffset: 320 } to { stroke-dashoffset: 0 } }
+  @keyframes pop { from { opacity: 0; transform: scale(.4) } to { opacity: 1; transform: scale(1) } }
+  @keyframes fill { from { transform: scaleY(0) } to { transform: scaleY(1) } }
+  @keyframes lift { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
+  @keyframes twinkle { 0%,100% { opacity: .2; transform: scale(.7) rotate(0deg) } 50% { opacity: 1; transform: scale(1.15) rotate(20deg) } }
+  @keyframes sway { 0%,100% { transform: scaleY(1) rotate(0deg) } 30% { transform: scaleY(1) rotate(-2.5deg) } 70% { transform: scaleY(1) rotate(2.5deg) } }
+  @keyframes glint { 0%,70%,100% { opacity: 0 } 80% { opacity: .9 } 90% { opacity: .2 } }
+  @keyframes breathe { 0%,100% { box-shadow: 0 0 0 0 rgba(214,179,106,0); border-color: var(--gold) } 50% { box-shadow: 0 0 22px 0 rgba(214,179,106,.28), inset 0 0 18px rgba(214,179,106,.08); border-color: #EAD08E } }
+  @keyframes sweep { 0% { background-position: 130% 0 } 35%,100% { background-position: -130% 0 } }
+  @keyframes sheen { 0% { background-position: 130% 0 } 40%,100% { background-position: -130% 0 } }
+  @keyframes glow { 0%,100% { opacity: .85; filter: drop-shadow(0 0 0 rgba(214,179,106,0)) } 50% { opacity: 1; filter: drop-shadow(0 0 3px rgba(214,179,106,.55)) } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <section class="invite" aria-label="Invitation">
+    <div class="frame">
+      <!-- Corner art: vine + evergreen sprig + berries -->
+      <svg class="art corner tl" viewBox="0 0 118 118" aria-hidden="true">
+        <path class="vine" d="M4 6 C 30 10, 40 40, 70 36 S 104 20, 114 6" fill="none" stroke="#D6B36A" stroke-width="1.1" stroke-linecap="round"/>
+        <path class="vine" d="M6 4 C 10 30, 40 40, 36 70 S 20 104, 6 114" fill="none" stroke="#D6B36A" stroke-width="1.1" stroke-linecap="round"/>
+        <g class="pop" style="transform-origin:46px 30px"><path d="M46 20 L46 40 M46 24 L40 30 M46 24 L52 30 M46 30 L40 36 M46 30 L52 36" stroke="#4C6B55" stroke-width="1.3" stroke-linecap="round" fill="none"/></g>
+        <g class="pop" style="transform-origin:30px 46px"><path d="M20 46 L40 46 M24 46 L30 40 M24 46 L30 52 M30 46 L36 40 M30 46 L36 52" stroke="#4C6B55" stroke-width="1.3" stroke-linecap="round" fill="none"/></g>
+        <g class="pop" style="transform-origin:22px 22px"><circle cx="19" cy="19" r="3" fill="#B1304A"/><circle cx="25" cy="22" r="3" fill="#B1304A"/><circle cx="21" cy="26" r="3" fill="#B1304A"/></g>
+        <g class="pop" style="transform-origin:84px 28px"><path d="M78 28 Q84 20 90 28 Q84 36 78 28 Z" fill="#D6B36A"/></g>
+        <g class="pop" style="transform-origin:28px 84px"><path d="M28 78 Q36 84 28 90 Q20 84 28 78 Z" fill="#D6B36A"/></g>
+      </svg>
+      <svg class="art corner br" viewBox="0 0 118 118" aria-hidden="true">
+        <path class="vine" d="M4 6 C 30 10, 40 40, 70 36 S 104 20, 114 6" fill="none" stroke="#D6B36A" stroke-width="1.1" stroke-linecap="round"/>
+        <path class="vine" d="M6 4 C 10 30, 40 40, 36 70 S 20 104, 6 114" fill="none" stroke="#D6B36A" stroke-width="1.1" stroke-linecap="round"/>
+        <g class="pop" style="transform-origin:46px 30px"><path d="M46 20 L46 40 M46 24 L40 30 M46 24 L52 30 M46 30 L40 36 M46 30 L52 36" stroke="#4C6B55" stroke-width="1.3" stroke-linecap="round" fill="none"/></g>
+        <g class="pop" style="transform-origin:30px 46px"><path d="M20 46 L40 46 M24 46 L30 40 M24 46 L30 52 M30 46 L36 40 M30 46 L36 52" stroke="#4C6B55" stroke-width="1.3" stroke-linecap="round" fill="none"/></g>
+        <g class="pop" style="transform-origin:22px 22px"><circle cx="19" cy="19" r="3" fill="#B1304A"/><circle cx="25" cy="22" r="3" fill="#B1304A"/><circle cx="21" cy="26" r="3" fill="#B1304A"/></g>
+        <g class="pop" style="transform-origin:84px 28px"><path d="M78 28 Q84 20 90 28 Q84 36 78 28 Z" fill="#D6B36A"/></g>
+        <g class="pop" style="transform-origin:28px 84px"><path d="M28 78 Q36 84 28 90 Q20 84 28 78 Z" fill="#D6B36A"/></g>
+      </svg>
+      <!-- Sparkles -->
+      <svg class="art sparkle s1" style="top:18%;right:12%" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7 5 L12 6 L7 7 L6 12 L5 7 L0 6 L5 5 Z" fill="#D6B36A"/></svg>
+      <svg class="art sparkle s2" style="top:30%;left:10%" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7 5 L12 6 L7 7 L6 12 L5 7 L0 6 L5 5 Z" fill="#D6B36A"/></svg>
+      <svg class="art sparkle s3" style="top:52%;right:8%" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7 5 L12 6 L7 7 L6 12 L5 7 L0 6 L5 5 Z" fill="#D6B36A"/></svg>
+      <svg class="art sparkle s4" style="bottom:34%;left:9%" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7 5 L12 6 L7 7 L6 12 L5 7 L0 6 L5 5 Z" fill="#D6B36A"/></svg>
+      <svg class="art sparkle s5" style="top:12%;left:46%" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7 5 L12 6 L7 7 L6 12 L5 7 L0 6 L5 5 Z" fill="#D6B36A"/></svg>
+      <svg class="art sparkle s6" style="top:40%;right:20%;width:8px;height:8px" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7 5 L12 6 L7 7 L6 12 L5 7 L0 6 L5 5 Z" fill="#D6B36A"/></svg>
+      <svg class="art sparkle s7" style="top:22%;left:24%;width:7px;height:7px" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7 5 L12 6 L7 7 L6 12 L5 7 L0 6 L5 5 Z" fill="#D6B36A"/></svg>
+      <svg class="art sparkle s8" style="bottom:22%;right:16%;width:9px;height:9px" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7 5 L12 6 L7 7 L6 12 L5 7 L0 6 L5 5 Z" fill="#D6B36A"/></svg>
+      <svg class="art sparkle s9" style="top:64%;left:14%;width:7px;height:7px" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7 5 L12 6 L7 7 L6 12 L5 7 L0 6 L5 5 Z" fill="#D6B36A"/></svg>
+
+      <svg class="glass" viewBox="0 0 54 76" aria-hidden="true">
+        <defs><clipPath id="bowl"><path d="M9 4 H45 Q45 40 27 44 Q9 40 9 4 Z"/></clipPath></defs>
+        <g clip-path="url(#bowl)">
+          <rect class="liquid" x="9" y="20" width="36" height="24" fill="#8E2443"/>
+          <path d="M9 22 Q27 30 45 22 V44 H9 Z" fill="#6E1A33" opacity=".7"/>
+          <path class="glint" d="M13 10 Q16 26 20 40" fill="none" stroke="#FFF4D6" stroke-width="1.6" stroke-linecap="round" opacity="0"/>
+        </g>
+        <path d="M9 4 H45 Q45 40 27 44 Q9 40 9 4 Z" fill="none" stroke="#D6B36A" stroke-width="1.3"/>
+        <line x1="27" y1="44" x2="27" y2="66" stroke="#D6B36A" stroke-width="1.3"/>
+        <line x1="14" y1="68" x2="40" y2="68" stroke="#D6B36A" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+
+      <p class="eyebrow" id="eyebrow" hidden></p>
+      <p class="sub" id="sub">A toast to the end of the semester</p>
+      <h1 id="title">Ladies' Wine Tasting<span>with a sommelier</span></h1>
+      <div class="orn" aria-hidden="true"><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg></div>
+      <p class="when" id="when">Friday, December 4 · 6–7pm</p>
+      <p class="where" id="where">Address to follow</p>
+      <p class="note" id="note">Guided tasting, about $50 per person<br>(final amount depends on headcount)<br>Optional dinner to follow</p>
+
+      <div class="actions">
+        <div class="lbl">Add to calendar</div>
+        <div class="row2">
+          <a class="pill" id="cal-google" href="#" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Google
+          </a>
+          <a class="pill" id="cal-ics" href="wine-tasting.ics">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Apple
+          </a>
+        </div>
+        <a class="pill" id="map" href="#" target="_blank" rel="noopener" aria-disabled="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Open in Maps
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="rsvp" aria-label="RSVP">
+    <div id="form-view">
+      <h2>Will you join us?</h2>
+      <p class="lede">A quick reply sets the headcount for the tasting and dinner.</p>
+      <form id="rsvp" novalidate>
+        <div class="field">
+          <label for="name">Your name</label>
+          <input type="text" id="name" name="name" autocomplete="name" placeholder="First and last name" required>
+        </div>
+        <div class="field">
+          <div class="flbl" id="att-lbl">Attending the tasting?</div>
+          <div class="seg" role="group" aria-labelledby="att-lbl">
+            <button type="button" id="att-yes" aria-pressed="false">Yes, I'm in</button>
+            <button type="button" id="att-no" aria-pressed="false">Can't make it</button>
+          </div>
+        </div>
+        <div class="field" id="dinner-field" hidden>
+          <div class="toggle-row">
+            <div class="q">Staying for dinner after?<small>Optional, right after the tasting</small></div>
+            <button type="button" class="toggle" id="dinner" role="switch" aria-checked="false" aria-label="Staying for dinner"></button>
+          </div>
+        </div>
+        <button class="btn" type="submit" id="submit">Send my RSVP</button>
+        <p class="err" id="err" hidden></p>
+        <p class="hint" id="hint" hidden></p>
+      </form>
+    </div>
+    <div id="thanks-view" class="thanks" hidden>
+      <h2 id="thanks-h">Thank you!</h2>
+      <p id="thanks-p"></p>
+      <button type="button" class="linkbtn" id="again">Change my reply</button>
+    </div>
+  </section>
+
+  <p class="foot">Cheers to a semester well done</p>
+</div>
+
+<iframe class="sink" name="gf-sink" title="hidden" aria-hidden="true"></iframe>
+<form id="gf" method="POST" target="gf-sink" hidden>
+  <input type="hidden" id="gf-name" name="">
+  <input type="hidden" id="gf-att" name="">
+  <input type="hidden" id="gf-dinner" name="">
+</form>
+
+<script>
+/* ========= EVENT SETTINGS — edit these for each new party ========= */
+const EVENT = {
+  title: "Ladies' Wine Tasting",
+  subtitle: "with a sommelier",
+  eyebrow: "",                        // small caps line above the subtitle; empty hides it
+  sub: "A toast to the end of the semester",
+  start: "2026-12-04T18:00:00",      // local time
+  end:   "2026-12-04T19:00:00",
+  tz:    "America/New_York",
+  dateLabel: "Friday, December 4 · 6–7pm",
+  address: "",                        // e.g. "12 Orchard Lane, Rye NY" — empty shows "Address to follow"
+  details: "Guided tasting, about $50 per person<br>(final amount depends on headcount)<br>Optional dinner to follow",
+  // Google Form connection — where RSVPs are stored
+  form: {
+    action: "https://docs.google.com/forms/d/e/1FAIpQLScCiUJMqiOSVvGrGlnZwE9t_7RkEplYKUHguzSnAe4gRlh26w/formResponse",
+    name:   "entry.768131922",
+    attending: "entry.1946858831",   // values sent: "Yes" / "No"
+    dinner: "entry.2073703228"       // values sent: "Yes" / "No"
+  }
+};
+/* ================================================================== */
+
+const $ = id => document.getElementById(id);
+const stamp = s => s.replace(/[-:]/g, "");
+
+$("title").innerHTML = EVENT.title + "<span>" + EVENT.subtitle + "</span>";
+$("eyebrow").textContent = EVENT.eyebrow; $("eyebrow").hidden = !EVENT.eyebrow;
+$("sub").textContent = EVENT.sub;
+$("when").textContent = EVENT.dateLabel;
+$("note").innerHTML = EVENT.details;
+document.title = EVENT.title;
+
+if (EVENT.address) {
+  $("where").textContent = EVENT.address;
+  const m = $("map");
+  m.href = "https://maps.google.com/?q=" + encodeURIComponent(EVENT.address);
+  m.removeAttribute("aria-disabled");
+}
+
+$("cal-google").href = "https://calendar.google.com/calendar/render?action=TEMPLATE"
+  + "&text=" + encodeURIComponent(EVENT.title)
+  + "&dates=" + stamp(EVENT.start) + "/" + stamp(EVENT.end)
+  + "&ctz=" + encodeURIComponent(EVENT.tz)
+  + (EVENT.address ? "&location=" + encodeURIComponent(EVENT.address) : "")
+  + "&details=" + encodeURIComponent(EVENT.sub + ", " + EVENT.subtitle + ". Optional dinner to follow.");
+
+let attending = null, dinner = false;
+const setAtt = v => {
+  attending = v;
+  $("att-yes").setAttribute("aria-pressed", v === true);
+  $("att-no").setAttribute("aria-pressed", v === false);
+  $("dinner-field").hidden = v !== true;
+  if (v !== true) { dinner = false; $("dinner").setAttribute("aria-checked", "false"); }
+  $("err").hidden = true;
+};
+$("att-yes").onclick = () => setAtt(true);
+$("att-no").onclick = () => setAtt(false);
+$("dinner").onclick = () => { dinner = !dinner; $("dinner").setAttribute("aria-checked", String(dinner)); };
+
+try {
+  const saved = JSON.parse(localStorage.getItem("rsvp:" + EVENT.title) || "null");
+  if (saved && saved.name) $("name").value = saved.name;
+} catch (e) {}
+
+const isPreview = /claude\.ai$/.test(location.hostname);
+if (isPreview) { $("hint").hidden = false; $("hint").textContent = "Design preview · replies are recorded on the live invitation link."; }
+
+$("rsvp").onsubmit = e => {
+  e.preventDefault();
+  const name = $("name").value.trim();
+  const err = $("err");
+  if (!name) { err.textContent = "Please add your name so we know who's coming."; err.hidden = false; $("name").focus(); return; }
+  if (attending === null) { err.textContent = "Please tap Yes or Can't make it."; err.hidden = false; return; }
+  err.hidden = true;
+  $("submit").disabled = true; $("submit").textContent = "Sending…";
+
+  if (!isPreview) {
+    const f = $("gf");
+    f.action = EVENT.form.action;
+    $("gf-name").name = EVENT.form.name; $("gf-name").value = name;
+    $("gf-att").name = EVENT.form.attending; $("gf-att").value = attending ? "Yes" : "No";
+    $("gf-dinner").name = EVENT.form.dinner; $("gf-dinner").value = (attending && dinner) ? "Yes" : "No";
+    try { f.submit(); } catch (x) {}
+  }
+  try { localStorage.setItem("rsvp:" + EVENT.title, JSON.stringify({ name, attending, dinner })); } catch (e) {}
+
+  setTimeout(() => {
+    const first = name.split(" ")[0];
+    $("thanks-h").textContent = attending ? "See you there, " + first + "!" : "We'll miss you, " + first;
+    $("thanks-p").textContent = attending
+      ? (dinner ? "You're down for the tasting and dinner." : "You're down for the tasting.")
+      : "Thanks for letting us know.";
+    $("form-view").hidden = true; $("thanks-view").hidden = false;
+    window.scrollTo({ top: document.querySelector(".rsvp").offsetTop - 12, behavior: "smooth" });
+  }, isPreview ? 400 : 900);
+};
+$("again").onclick = () => {
+  $("thanks-view").hidden = true; $("form-view").hidden = false;
+  $("submit").disabled = false; $("submit").textContent = "Send my RSVP";
+};
+</script>
+</body>
+</html>
