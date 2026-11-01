@@ -26,6 +26,7 @@ DTSTAMP:20261027T220000Z
 DTSTART;TZID=America/New_York:20261203T180000
 DTEND;TZID=America/New_York:20261203T190000
 SUMMARY:Ladies' Wine Tasting
-DESCRIPTION:A toast to the end of the semester. Wine\, conversation and a sommelier to guide us. About $50 each. Optional dinner after.
+LOCATION:Scarsdale Wine Merchants\, 30 East Pkwy\, Scarsdale\, NY 10583
+DESCRIPTION:A toast to the end of the semester. Wine\, conversation and a sommelier to guide us\, about $50 each. Dinner after\, close by in Scarsdale village\, bill split.
 END:VEVENT
 END:VCALENDAR
