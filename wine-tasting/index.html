@@ -167,7 +167,8 @@
     .sparkle.s6 { animation-delay: 2.9s; animation-duration: 3.9s } .sparkle.s7 { animation-delay: .4s; animation-duration: 5.2s } .sparkle.s8 { animation-delay: 1.9s; animation-duration: 3.3s } .sparkle.s9 { animation-delay: 3.4s; animation-duration: 4.4s }
     .frame { animation: breathe 6s ease-in-out 2s infinite; }
     .frame::after { content: ""; position: absolute; inset: -1px; pointer-events: none; background: linear-gradient(115deg, transparent 42%, rgba(255,244,214,.07) 50%, transparent 58%); background-size: 260% 100%; animation: sweep 9s ease-in-out 2.5s infinite; }
-    h1, .when { background: linear-gradient(110deg, var(--cream) 40%, #FFF7E0 50%, var(--cream) 60%); background-size: 260% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: lift .8s ease-out both, sheen 7s ease-in-out 2.5s infinite; }
+    h1, .when { background: linear-gradient(110deg, var(--cream) 40%, #FFF7E0 50%, var(--cream) 60%); background-size: 260% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: lift .8s ease-out both, sheen 7s ease-in-out 2.5s infinite; padding: .06em 0 .16em; margin-bottom: -.16em; }
+    .when { white-space: nowrap; font-size: clamp(18px, 5.4vw, 22px); }
     h1 span { -webkit-text-fill-color: var(--cream-soft); }
     .corner { animation: glow 5s ease-in-out 2.5s infinite; }
     .eyebrow, .sub, h1, .orn, .when, .where, .note, .actions { animation: lift .8s ease-out both; }
