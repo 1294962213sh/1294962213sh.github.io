@@ -1,0 +1,695 @@
+<!doctype html>
+<!--
+  SAMPLE INVITATION for the storefront (invites/). A made-up party: nothing here is real and replies are not saved.
+  Copied from wine-tasting/ with the poll switched on and demo: {...} pretend vote counts in the EVENT block.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#EFE6D6">
+<meta name="description" content="Nora is turning forty. A long table under the string lights, a Saturday in May at 6pm. Help pick the date: May 9, 16 or 17.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Invitations">
+<meta property="og:image" content="https://1294962213sh.github.io/demo/preview.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>A Garden Supper · sample invitation</title>
+<meta property="og:title" content="A Garden Supper · pick a date">
+<meta property="og:description" content="Nora is turning forty. A long table under the string lights, a Saturday in May at 6pm. Help pick the date: May 9, 16 or 17.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@400;500&display=swap">
+<style>
+  /* Layout: one invitation card on a midnight-plum ground; RSVP below on champagne paper. Single committed look (dark). */
+  :root {
+    --ground: #EFE6D6;        /* page: warm linen */
+    --card: #FBF6EB;          /* invitation card top */
+    --card-deep: #F2E8D5;     /* invitation card bottom */
+    --gold: #B9573A;          /* terracotta: frame, line art, rules */
+    --gold-dim: rgba(185,87,58,.45);
+    --cream: #2B2420;         /* display text on card (ink) */
+    --cream-soft: #6B5E55;    /* secondary text on card */
+    --berry: #9E4730;         /* deep terracotta: buttons, leading bar */
+    --pine: #6E7F5A;          /* olive leaves, other bars */
+    --paper: #FFFDF8;         /* RSVP card */
+    --paper-line: #E2D6C0;
+    --ink: #2B2420;
+    --ink-soft: #6B5E55;
+    --display: "Cormorant Garamond", "Garamond", "Georgia", serif;
+    --body: "Jost", "Futura", "Helvetica Neue", Arial, sans-serif;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--cream);
+    font-family: var(--body); font-size: 16px; line-height: 1.5;
+    padding-block: 18px 36px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 430px; margin: 0 auto; display: grid; gap: 16px; }
+
+  /* ---------- Invitation ---------- */
+  .invite {
+    position: relative; border-radius: 6px; overflow: hidden;
+    background: radial-gradient(120% 80% at 50% 0%, var(--card) 0%, var(--card-deep) 100%);
+    box-shadow: 0 24px 60px rgba(90,60,40,.18);
+    padding: 14px;
+  }
+  .frame {
+    position: relative; text-align: center;
+    border: 1px solid var(--gold); outline: 1px solid var(--gold-dim); outline-offset: 3px;
+    padding: 48px 16px 30px; min-width: 0;
+  }
+  .art { position: absolute; pointer-events: none; }
+  .corner { width: 118px; height: 118px; }
+  .corner.tl { top: -2px; left: -2px; }
+  .corner.br { bottom: -2px; right: -2px; transform: rotate(180deg); }
+  .sparkle { width: 12px; height: 12px; opacity: .7; }
+  .glass { display: block; margin: 0 auto 14px; width: 48px; height: 70px; }
+
+  .eyebrow {
+    margin: 0 0 6px; font-size: 11px; letter-spacing: .26em; text-transform: uppercase;
+    color: var(--gold); font-weight: 500;
+  }
+  .sub { margin: 0 0 14px; font-family: var(--display); font-style: italic; font-size: 19px; color: var(--cream-soft); }
+  h1 {
+    margin: 0; font-family: var(--display); font-weight: 500; font-style: italic;
+    font-size: clamp(38px, 10.5vw, 48px); line-height: 1; letter-spacing: .005em;
+    color: var(--cream); text-wrap: balance;
+  }
+  h1 span { display: block; font-style: normal; font-weight: 400; font-size: .62em; letter-spacing: .12em; text-transform: uppercase; margin-top: 10px; color: var(--cream-soft); }
+  .orn { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 18px auto 16px; color: var(--gold); }
+  .orn::before, .orn::after { content: ""; width: 56px; height: 1px; background: var(--gold); opacity: .8; }
+  .orn svg { width: 10px; height: 10px; }
+  .when { margin: 0; font-family: var(--display); font-size: 22px; font-weight: 600; color: var(--cream); line-height: 1.3; }
+  .where { margin: 2px 0 0; font-family: var(--display); font-size: 18px; color: var(--cream-soft); }
+  .note { margin: 16px auto 0; max-width: 38ch; font-family: var(--display); font-style: italic; font-size: 17px; line-height: 1.45; color: var(--cream-soft); }
+
+  .actions { margin-top: 22px; display: grid; gap: 8px; position: relative; z-index: 1; }
+  .actions .pill { background: rgba(251,246,235,.92); }
+  .actions .lbl { font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); opacity: .9; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; min-width: 0; }
+  #map { justify-self: center; padding-inline: 22px; }
+  .pill {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 0;
+    font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 500;
+    color: var(--cream); text-decoration: none; cursor: pointer;
+    border: 1px solid var(--gold-dim); border-radius: 999px; padding: 10px 10px; background: transparent;
+  }
+  .pill:hover { background: rgba(185,87,58,.08); border-color: var(--gold); }
+  .pill svg { width: 13px; height: 13px; flex: none; }
+  .pill[aria-disabled="true"] { opacity: .4; pointer-events: none; }
+  .pill:focus-visible, .btn:focus-visible, input:focus-visible, .seg button:focus-visible, .toggle:focus-visible, .linkbtn:focus-visible {
+    outline: 2px solid var(--gold); outline-offset: 2px;
+  }
+
+  /* ---------- RSVP ---------- */
+  .rsvp {
+    background: var(--paper); color: var(--ink); border-radius: 6px;
+    padding: 22px 18px 20px; box-shadow: 0 14px 36px rgba(90,60,40,.14);
+    color-scheme: light; position: relative;
+  }
+  .rsvp::before { content: ""; position: absolute; inset: 7px; border: 1px solid var(--paper-line); border-radius: 3px; pointer-events: none; }
+  .rsvp > * { position: relative; }
+  .rsvp h2 { font-family: var(--display); font-weight: 500; font-size: 28px; margin: 0 0 18px; color: var(--berry); line-height: 1.1; }
+  .rsvp .lede { margin: 0 0 18px; color: var(--ink-soft); font-size: 14px; }
+  .field { display: grid; gap: 8px; margin-bottom: 16px; }
+  .field label, .field .flbl { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); font-weight: 500; }
+  input[type="text"] {
+    width: 100%; font: 17px var(--body); color: var(--ink);
+    padding: 12px 14px; border: 1px solid var(--berry); border-radius: 4px; background: #fff;
+  }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .seg button {
+    font: 500 14px var(--body); letter-spacing: .02em; padding: 13px 8px; border-radius: 4px; cursor: pointer;
+    border: 1px solid var(--berry); background: #fff; color: var(--berry);
+  }
+  .seg button[aria-pressed="true"] { background: var(--berry); color: var(--cream); }
+  .dates { display: grid; grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr)); gap: 8px; }
+  .dates button {
+    position: relative; cursor: pointer; font: 500 14px var(--body); letter-spacing: .02em; white-space: nowrap;
+    padding: 13px 4px; border-radius: 4px; border: 1px solid var(--berry); background: #fff; color: var(--berry);
+  }
+  .dates button[aria-pressed="true"] { background: var(--berry); color: var(--cream); }
+  .dates button[aria-pressed="true"]::after {
+    content: ""; position: absolute; top: 6px; right: 7px; width: 7px; height: 3.5px;
+    border-left: 1.5px solid var(--gold); border-bottom: 1.5px solid var(--gold); transform: rotate(-45deg);
+  }
+  .none {
+    margin-top: 8px; width: 100%; font: 13px var(--body); color: var(--ink-soft); cursor: pointer;
+    background: none; border: 1px dashed var(--paper-line); border-radius: 4px; padding: 10px;
+  }
+  .none[aria-pressed="true"] { border-style: solid; border-color: var(--berry); color: var(--berry); background: #fff; }
+  .dates button:focus-visible, .none:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  @media (max-width: 380px) { .dates button { font-size: 13px; letter-spacing: 0; } }
+  .tally { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--paper-line); text-align: left; }
+  .tally h3 { margin: 0 0 12px; font: 500 11px var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); }
+  .trow { display: grid; grid-template-columns: 96px minmax(0, 1fr) 22px; align-items: center; gap: 10px; margin-bottom: 9px; font-size: 14px; color: var(--ink); }
+  .trow .d small { display: block; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--berry); line-height: 1.2; }
+  .trow .bar { height: 8px; border-radius: 999px; background: #EBE0CC; overflow: hidden; }
+  .trow .bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--pine); transition: width .9s cubic-bezier(.3,.7,.2,1); }
+  .trow.lead .bar i { background: var(--berry); }
+  .trow.dinner { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--paper-line); }
+  .trow.dinner .bar i { background: var(--pine); }
+  .trow .n { text-align: right; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .tnote { margin: 6px 0 0; font-size: 12px; color: var(--ink-soft); }
+  .headcount { margin: 14px 0 0; text-align: center; font-family: var(--display); font-style: italic; font-size: 18px; color: var(--berry); }
+  .headcount b { font-style: normal; font-weight: 600; }
+  .thanks .headcount { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--paper-line); }
+  .peek { display: block; margin: 14px auto 0; font: 500 13px var(--body); color: var(--berry); background: none; border: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .peek:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .toggle-row .q { font-size: 15px; color: var(--ink); }
+  .toggle-row .q small { display: block; color: var(--ink-soft); font-size: 12px; }
+  .toggle {
+    flex: none; width: 52px; height: 30px; border-radius: 999px; border: 0; cursor: pointer;
+    background: #D9CDB8; position: relative; transition: background .2s;
+  }
+  .toggle::after {
+    content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px;
+    border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.3);
+  }
+  .toggle[aria-checked="true"] { background: var(--berry); }
+  .toggle[aria-checked="true"]::after { transform: translateX(22px); }
+  .btn {
+    width: 100%; font: 500 14px var(--body); letter-spacing: .14em; text-transform: uppercase;
+    padding: 15px; border-radius: 4px; border: 0; cursor: pointer;
+    background: var(--berry); color: var(--cream); margin-top: 2px;
+  }
+  .btn:hover { background: #8A3C28; }
+  .btn:disabled { opacity: .6; cursor: default; }
+  .hint { font-size: 12px; color: var(--ink-soft); margin: 10px 0 0; text-align: center; }
+  .err { color: #9B1C2E; font-size: 14px; margin: 8px 0 0; }
+  .thanks { text-align: center; padding: 8px 0 2px; }
+  .thanks h2 { font-size: 30px; }
+  .thanks p { color: var(--ink-soft); margin: 6px 0 0; }
+  .linkbtn { margin-top: 14px; font: 500 13px var(--body); color: var(--berry); background: none; border: 0; text-decoration: underline; cursor: pointer; }
+  .foot { text-align: center; font-size: 10px; color: rgba(43,36,32,.5); letter-spacing: .2em; text-transform: uppercase; }
+  iframe.sink { position: absolute; width: 0; height: 0; border: 0; visibility: hidden; }
+
+  /* ---------- Motion: vine draws, berries pop, glass fills, sparkles twinkle. All visible at rest. ---------- */
+  .glass .liquid { transform-origin: 50% 100%; }
+  @media (prefers-reduced-motion: no-preference) {
+    .corner .vine { stroke-dasharray: 320; animation: draw 1.8s ease-out both; }
+    .corner .pop { animation: pop .5s ease-out both; }
+    .corner .pop:nth-of-type(1) { animation-delay: .9s } .corner .pop:nth-of-type(2) { animation-delay: 1.05s }
+    .corner .pop:nth-of-type(3) { animation-delay: 1.2s } .corner .pop:nth-of-type(4) { animation-delay: 1.35s }
+    .corner .pop:nth-of-type(5) { animation-delay: 1.5s }
+    .glass .liquid { animation: fill 1.4s cubic-bezier(.4,0,.2,1) .4s both, flicker 3.2s ease-in-out 2s infinite; }
+    .glass .glint { animation: glint 4s ease-in-out 2.2s infinite; }
+    .sparkle { animation: twinkle 3.2s ease-in-out infinite; }
+    .sparkle.s2 { animation-delay: .8s; animation-duration: 4.1s } .sparkle.s3 { animation-delay: 1.6s; animation-duration: 2.7s } .sparkle.s4 { animation-delay: 2.3s; animation-duration: 3.6s } .sparkle.s5 { animation-delay: 1.1s; animation-duration: 4.6s }
+    .sparkle.s6 { animation-delay: 2.9s; animation-duration: 3.9s } .sparkle.s7 { animation-delay: .4s; animation-duration: 5.2s } .sparkle.s8 { animation-delay: 1.9s; animation-duration: 3.3s } .sparkle.s9 { animation-delay: 3.4s; animation-duration: 4.4s }
+    .frame { animation: breathe 6s ease-in-out 2s infinite; }
+    .frame::after { content: ""; position: absolute; inset: -1px; pointer-events: none; background: linear-gradient(115deg, transparent 42%, rgba(185,87,58,.06) 50%, transparent 58%); background-size: 260% 100%; animation: sweep 9s ease-in-out 2.5s infinite; }
+    h1, .when { background: linear-gradient(110deg, var(--cream) 40%, #8A3C28 50%, var(--cream) 60%); background-size: 260% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: lift .8s ease-out both, sheen 7s ease-in-out 2.5s infinite; padding: .06em 0 .16em; margin-bottom: -.16em; }
+    .when { white-space: nowrap; font-size: clamp(18px, 5.4vw, 22px); }
+    h1 span { -webkit-text-fill-color: var(--cream-soft); }
+    .corner { animation: glow 5s ease-in-out 2.5s infinite; }
+    .eyebrow, .sub, h1, .orn, .when, .where, .note, .actions { animation: lift .8s ease-out both; }
+    .eyebrow { animation-delay: .3s } .sub { animation-delay: .4s } h1 { animation-delay: .5s } .orn { animation-delay: .65s }
+    .when { animation-delay: .75s } .where { animation-delay: .85s } .note { animation-delay: 1s } .actions { animation-delay: 1.15s }
+  }
+  @keyframes draw { from { stroke-dashoffset: 320 } to { stroke-dashoffset: 0 } }
+  @keyframes pop { from { opacity: 0; transform: scale(.4) } to { opacity: 1; transform: scale(1) } }
+  @keyframes fill { from { transform: scaleY(0) } to { transform: scaleY(1) } }
+  @keyframes lift { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
+  @keyframes twinkle { 0%,100% { opacity: .2; transform: scale(.7) rotate(0deg) } 50% { opacity: 1; transform: scale(1.15) rotate(20deg) } }
+  @keyframes flicker { 0%,100% { transform: scaleY(1) } 30% { transform: scaleY(.9) scaleX(1.05) } 60% { transform: scaleY(1.06) } 80% { transform: scaleY(.95) } }
+  @keyframes glint { 0%,100% { opacity: .12 } 50% { opacity: .3 } }
+  @keyframes breathe { 0%,100% { box-shadow: 0 0 0 0 rgba(185,87,58,0); border-color: var(--gold) } 50% { box-shadow: 0 0 22px 0 rgba(185,87,58,.22), inset 0 0 18px rgba(185,87,58,.06); border-color: #D27A5C } }
+  @keyframes sweep { 0% { background-position: 130% 0 } 35%,100% { background-position: -130% 0 } }
+  @keyframes sheen { 0% { background-position: 130% 0 } 40%,100% { background-position: -130% 0 } }
+  @keyframes glow { 0%,100% { opacity: .85; filter: drop-shadow(0 0 0 rgba(185,87,58,0)) } 50% { opacity: 1; filter: drop-shadow(0 0 3px rgba(185,87,58,.45)) } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <section class="invite" aria-label="Invitation">
+    <div class="frame">
+      <!-- Corner art: vine + evergreen sprig + berries -->
+      <svg class="art corner tl" viewBox="0 0 118 118" aria-hidden="true">
+        <path class="vine" d="M4 6 C 28 8, 44 30, 70 34 S 100 22, 114 6" fill="none" stroke="#B9573A" stroke-width="1.1" stroke-linecap="round"/>
+        <path class="vine" d="M6 4 C 8 28, 30 44, 34 70 S 22 100, 6 114" fill="none" stroke="#B9573A" stroke-width="1.1" stroke-linecap="round"/>
+        <g class="pop" style="transform-origin:40px 22px"><path d="M36 22 Q44 14 52 20 Q44 26 36 22 Z M42 30 Q50 22 58 28 Q50 34 42 30 Z" fill="none" stroke="#6E7F5A" stroke-width="1.2" stroke-linejoin="round"/></g>
+        <g class="pop" style="transform-origin:22px 40px"><path d="M22 36 Q14 44 20 52 Q26 44 22 36 Z M30 42 Q22 50 28 58 Q34 50 30 42 Z" fill="none" stroke="#6E7F5A" stroke-width="1.2" stroke-linejoin="round"/></g>
+        <g class="pop" style="transform-origin:66px 30px"><path d="M62 28 Q70 22 78 30 Q70 36 62 28 Z" fill="none" stroke="#6E7F5A" stroke-width="1.2" stroke-linejoin="round"/><circle cx="84" cy="24" r="2.6" fill="#6E7F5A"/><circle cx="89" cy="30" r="2.2" fill="#6E7F5A"/></g>
+        <g class="pop" style="transform-origin:30px 66px"><path d="M28 62 Q22 70 30 78 Q36 70 28 62 Z" fill="none" stroke="#6E7F5A" stroke-width="1.2" stroke-linejoin="round"/><circle cx="24" cy="84" r="2.6" fill="#6E7F5A"/><circle cx="30" cy="89" r="2.2" fill="#6E7F5A"/></g>
+        <g class="pop" style="transform-origin:20px 20px"><circle cx="18" cy="18" r="3" fill="#B9573A"/><circle cx="24" cy="21" r="2.4" fill="#B9573A"/></g>
+      </svg>
+      <svg class="art corner br" viewBox="0 0 118 118" aria-hidden="true">
+        <path class="vine" d="M4 6 C 28 8, 44 30, 70 34 S 100 22, 114 6" fill="none" stroke="#B9573A" stroke-width="1.1" stroke-linecap="round"/>
+        <path class="vine" d="M6 4 C 8 28, 30 44, 34 70 S 22 100, 6 114" fill="none" stroke="#B9573A" stroke-width="1.1" stroke-linecap="round"/>
+        <g class="pop" style="transform-origin:40px 22px"><path d="M36 22 Q44 14 52 20 Q44 26 36 22 Z M42 30 Q50 22 58 28 Q50 34 42 30 Z" fill="none" stroke="#6E7F5A" stroke-width="1.2" stroke-linejoin="round"/></g>
+        <g class="pop" style="transform-origin:22px 40px"><path d="M22 36 Q14 44 20 52 Q26 44 22 36 Z M30 42 Q22 50 28 58 Q34 50 30 42 Z" fill="none" stroke="#6E7F5A" stroke-width="1.2" stroke-linejoin="round"/></g>
+        <g class="pop" style="transform-origin:66px 30px"><path d="M62 28 Q70 22 78 30 Q70 36 62 28 Z" fill="none" stroke="#6E7F5A" stroke-width="1.2" stroke-linejoin="round"/><circle cx="84" cy="24" r="2.6" fill="#6E7F5A"/><circle cx="89" cy="30" r="2.2" fill="#6E7F5A"/></g>
+        <g class="pop" style="transform-origin:30px 66px"><path d="M28 62 Q22 70 30 78 Q36 70 28 62 Z" fill="none" stroke="#6E7F5A" stroke-width="1.2" stroke-linejoin="round"/><circle cx="24" cy="84" r="2.6" fill="#6E7F5A"/><circle cx="30" cy="89" r="2.2" fill="#6E7F5A"/></g>
+        <g class="pop" style="transform-origin:20px 20px"><circle cx="18" cy="18" r="3" fill="#B9573A"/><circle cx="24" cy="21" r="2.4" fill="#B9573A"/></g>
+      </svg>
+      <!-- Sparkles -->
+      <svg class="art sparkle s1" style="top:18%;right:12%" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7 5 L12 6 L7 7 L6 12 L5 7 L0 6 L5 5 Z" fill="#C9A24A"/></svg>
+      <svg class="art sparkle s2" style="top:30%;left:10%" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7 5 L12 6 L7 7 L6 12 L5 7 L0 6 L5 5 Z" fill="#C9A24A"/></svg>
+      <svg class="art sparkle s3" style="top:52%;right:8%" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7 5 L12 6 L7 7 L6 12 L5 7 L0 6 L5 5 Z" fill="#C9A24A"/></svg>
+      <svg class="art sparkle s4" style="bottom:34%;left:9%" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7 5 L12 6 L7 7 L6 12 L5 7 L0 6 L5 5 Z" fill="#C9A24A"/></svg>
+      <svg class="art sparkle s5" style="top:12%;left:46%" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7 5 L12 6 L7 7 L6 12 L5 7 L0 6 L5 5 Z" fill="#C9A24A"/></svg>
+      <svg class="art sparkle s6" style="top:40%;right:20%;width:8px;height:8px" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7 5 L12 6 L7 7 L6 12 L5 7 L0 6 L5 5 Z" fill="#C9A24A"/></svg>
+      <svg class="art sparkle s7" style="top:22%;left:24%;width:7px;height:7px" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7 5 L12 6 L7 7 L6 12 L5 7 L0 6 L5 5 Z" fill="#C9A24A"/></svg>
+      <svg class="art sparkle s8" style="bottom:22%;right:16%;width:9px;height:9px" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7 5 L12 6 L7 7 L6 12 L5 7 L0 6 L5 5 Z" fill="#C9A24A"/></svg>
+      <svg class="art sparkle s9" style="top:64%;left:14%;width:7px;height:7px" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7 5 L12 6 L7 7 L6 12 L5 7 L0 6 L5 5 Z" fill="#C9A24A"/></svg>
+
+      <svg class="glass" viewBox="0 0 54 76" aria-hidden="true">
+        <path d="M27 2 V10" stroke="#B9573A" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M18 14 Q27 6 36 14" fill="none" stroke="#B9573A" stroke-width="1.3" stroke-linecap="round"/>
+        <rect x="15" y="14" width="24" height="40" rx="4" fill="none" stroke="#B9573A" stroke-width="1.3"/>
+        <path d="M15 24 H39 M15 44 H39" stroke="#B9573A" stroke-width="1" opacity=".6"/>
+        <ellipse class="glint" cx="27" cy="35" rx="12" ry="14" fill="#E6B65A" opacity="0"/>
+        <path class="liquid" d="M27 26 Q33 33 27 42 Q21 33 27 26 Z" fill="#D98E3A"/>
+        <path d="M22 54 V60 H32 V54" fill="none" stroke="#B9573A" stroke-width="1.3" stroke-linejoin="round"/>
+        <path d="M14 66 H40" stroke="#B9573A" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+
+      <p class="eyebrow" id="eyebrow" hidden></p>
+      <p class="sub" id="sub">Nora is turning forty</p>
+      <h1 id="title">A Garden Supper</h1>
+      <div class="orn" aria-hidden="true"><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg></div>
+      <p class="when" id="when">A Saturday in May · 6pm</p>
+      <p class="where" id="where">The back garden, Larchmont<br>Address to follow</p>
+      <p class="note" id="note">A long table under the string lights, a few courses from the garden, and a toast at dusk. Bring a wrap for later. Dancing after dessert for anyone who can stay.</p>
+
+      <div class="actions">
+        <div id="cal-wrap" class="actions" style="margin-top:0">
+        <div class="lbl">Add to calendar</div>
+        <div class="row2">
+          <a class="pill" id="cal-google" href="#" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Google
+          </a>
+          <a class="pill" id="cal-ics" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Apple
+          </a>
+        </div>
+        </div>
+        <a class="pill" id="map" href="#" target="_blank" rel="noopener" aria-disabled="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Open in Maps
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="rsvp" aria-label="RSVP">
+    <div id="form-view">
+      <h2 id="rsvp-h">Will you join us?</h2>
+      <form id="rsvp" novalidate>
+        <div class="field">
+          <label for="name">Your name</label>
+          <input type="text" id="name" name="name" autocomplete="name" placeholder="First and last name" required>
+        </div>
+        <div class="field" id="poll-field" hidden>
+          <div class="flbl" id="poll-lbl">Dates that work · pick all that apply</div>
+          <div class="dates" id="dates" role="group" aria-labelledby="poll-lbl"></div>
+        </div>
+        <div class="field" id="att-field">
+          <div class="flbl" id="att-lbl">Joining the supper?</div>
+          <div class="seg" role="group" aria-labelledby="att-lbl">
+            <button type="button" id="att-yes" aria-pressed="false">Yes, I'm in</button>
+            <button type="button" id="att-no" aria-pressed="false">Can't make it</button>
+          </div>
+        </div>
+        <div class="field" id="dinner-field">
+          <div class="toggle-row">
+            <div class="q">Staying for dancing after?<small>Optional · after dessert</small></div>
+            <button type="button" class="toggle" id="dinner" role="switch" aria-checked="false" aria-label="Staying for dancing"></button>
+          </div>
+        </div>
+        <button class="btn" type="submit" id="submit">Send my RSVP</button>
+        <p class="err" id="err" hidden></p>
+        <p class="hint" id="hint" hidden></p>
+        <p class="headcount" id="head-form" hidden aria-live="polite"></p>
+        <button type="button" class="peek" id="peek" hidden aria-expanded="false">See the votes so far</button>
+      </form>
+      <div class="tally" id="tally" hidden aria-live="polite"></div>
+    </div>
+    <div id="thanks-view" class="thanks" hidden>
+      <h2 id="thanks-h">Thank you!</h2>
+      <p id="thanks-p"></p>
+      <p class="headcount" id="head-thanks" hidden aria-live="polite"></p>
+      <div id="tally-slot"></div>
+      <button type="button" class="linkbtn" id="again">Change my reply</button>
+    </div>
+  </section>
+
+  <p class="foot">With love, from Nora's people</p>
+</div>
+
+<iframe class="sink" name="gf-sink" title="hidden" aria-hidden="true"></iframe>
+<form id="gf" method="POST" target="gf-sink" hidden>
+  <input type="hidden" id="gf-name" name="">
+  <input type="hidden" id="gf-att" name="">
+  <input type="hidden" id="gf-dinner" name="">
+</form>
+
+<script>
+/* ========= EVENT SETTINGS — edit these for each new party ========= */
+const EVENT = {
+  title: "A Garden Supper",
+  subtitle: "",                       // small caps line under the title; empty hides it
+  eyebrow: "You're invited",          // small caps line above the subtitle; empty hides it
+  sub: "Nora is turning forty",
+  start: "2027-05-16T18:00:00",      // local time
+  end:   "2027-05-16T22:00:00",
+  tz:    "America/New_York",
+  dateLabel: "Saturday, May 16 · 6pm",   // used once the poll is closed
+  // DATE POLL — while active, guests pick every date that works instead of a single Yes/No.
+  // To close the poll: set active to false, then update start/end/dateLabel above to the winning date.
+  poll: {
+    active: true,                    // sample: the poll stays open
+    label: "A Saturday in May · 6pm",
+    entry: "",                       // no form behind the sample
+    // Counts-only "Tally" tab of the sheet, published to the web as CSV (no names). Empty hides the results.
+    resultsCsv: "",
+    options: [
+      { value: "Sat May 9",  day: "Saturday", date: "May 9" },
+      { value: "Sat May 16", day: "Saturday", date: "May 16" },
+      { value: "Sun May 17", day: "Sunday",   date: "May 17" }
+    ]
+  },
+  address: "",                      // empty: no real place for the sample, so the Maps button stays off
+  addressDisplay: "The back garden, Larchmont<br>Address to follow",
+  details: "A long table under the string lights, a few courses from the garden, and a toast at dusk. Bring a wrap for later. Dancing after dessert for anyone who can stay.",
+  // DEMO MODE — pretend vote counts shown in the chart; nothing is sent anywhere. Remove for a real event.
+  demo: { "Sat May 9": 5, "Sat May 16": 9, "Sun May 17": 4, dinner: 7, replies: 12 },
+  // Google Form connection — where RSVPs are stored
+  form: {
+    action: "",
+    name:   "",
+    attending: "",   // values sent: "Yes" / "No"
+    dinner: ""       // values sent: "Yes" / "No"
+  }
+};
+/* ================================================================== */
+
+const $ = id => document.getElementById(id);
+const stamp = s => s.replace(/[-:]/g, "");
+
+$("title").innerHTML = EVENT.title + (EVENT.subtitle ? "<span>" + EVENT.subtitle + "</span>" : "");
+$("eyebrow").textContent = EVENT.eyebrow; $("eyebrow").hidden = !EVENT.eyebrow;
+$("sub").textContent = EVENT.sub;
+$("when").textContent = EVENT.dateLabel;
+$("note").innerHTML = EVENT.details;
+document.title = EVENT.title;
+
+$("where").innerHTML = EVENT.addressDisplay || EVENT.address || EVENT.addressHint || "Address to follow";
+$("map").hidden = !EVENT.address;
+if (EVENT.address) {
+  const m = $("map");
+  m.href = "https://maps.google.com/?q=" + encodeURIComponent(EVENT.address);
+  m.removeAttribute("aria-disabled");
+}
+
+$("cal-google").href = "https://calendar.google.com/calendar/render?action=TEMPLATE"
+  + "&text=" + encodeURIComponent(EVENT.title)
+  + "&dates=" + stamp(EVENT.start) + "/" + stamp(EVENT.end)
+  + "&ctz=" + encodeURIComponent(EVENT.tz)
+  + (EVENT.address ? "&location=" + encodeURIComponent(EVENT.address) : "")
+  + "&details=" + encodeURIComponent(EVENT.details.replace(/<br>/g, " "));
+
+const POLL = !!(EVENT.poll && EVENT.poll.active);
+const store = "rsvp:" + EVENT.title + (POLL ? ":poll" : "");
+const listText = a => a.length < 2 ? (a[0] || "") : a.slice(0, -1).join(", ") + " and " + a[a.length - 1];
+
+let attending = null, dinner = false, picked = [], noneWork = false;
+const setDinner = v => { dinner = v; $("dinner").setAttribute("aria-checked", String(v)); };
+$("dinner").onclick = () => setDinner(!dinner);
+
+/* ---- single-date mode ---- */
+const setAtt = v => {
+  attending = v;
+  $("att-yes").setAttribute("aria-pressed", v === true);
+  $("att-no").setAttribute("aria-pressed", v === false);
+  $("dinner-field").hidden = v === false;
+  if (v !== true) setDinner(false);
+  $("err").hidden = true;
+};
+$("att-yes").onclick = () => setAtt(true);
+$("att-no").onclick = () => setAtt(false);
+
+/* ---- poll mode ---- */
+const syncPoll = () => {
+  [...$("dates").children].forEach(b => b.setAttribute("aria-pressed", picked.includes(b.dataset.v)));
+  $("err").hidden = true;
+};
+if (POLL) {
+  $("when").textContent = EVENT.poll.label;
+  $("cal-wrap").hidden = true;
+  $("att-field").hidden = true;
+  $("poll-field").hidden = false;
+  $("rsvp-h").textContent = "Date preferences & RSVP";
+  $("submit").textContent = "Send my dates";
+  $("dates").style.setProperty("--cols", EVENT.poll.options.length === 3 ? 3 : 2);
+  EVENT.poll.options.forEach(o => {
+    const b = document.createElement("button");
+    b.type = "button"; b.dataset.v = o.value; b.setAttribute("aria-pressed", "false");
+    b.textContent = o.day.slice(0, 3) + ", " + o.date;
+    b.onclick = () => {
+      picked = picked.includes(o.value) ? picked.filter(x => x !== o.value) : picked.concat(o.value);
+      picked.sort((a, c) => EVENT.poll.options.findIndex(x => x.value === a) - EVENT.poll.options.findIndex(x => x.value === c));
+      syncPoll();
+    };
+    $("dates").appendChild(b);
+  });
+}
+
+/* ---- live vote tally (poll mode) ---- */
+const tallyOn = POLL && !!(EVENT.poll.resultsCsv || EVENT.demo);
+let tallyData = null;
+/* Google serves published data from several servers that can lag each other for a few minutes,
+   so ask six times at once and keep the freshest answer (the one with the most replies). */
+async function fetchOnce(k) {
+  const r = await fetch(EVENT.poll.resultsCsv + "&t=" + Date.now() + k, { cache: "no-store" });
+  if (!r.ok) throw new Error(r.status);
+  const map = {};
+  (await r.text()).trim().split(/\r?\n/).slice(1).forEach(line => {
+    const i = line.lastIndexOf(",");
+    map[line.slice(0, i).replace(/^"|"$/g, "")] = parseInt(line.slice(i + 1), 10) || 0;
+  });
+  return map;
+}
+async function fetchTally() {
+  if (EVENT.demo) { tallyData = Object.assign({}, EVENT.demo); return tallyData; }
+  const got = (await Promise.allSettled([0, 1, 2, 3, 4, 5].map(fetchOnce))).filter(x => x.status === "fulfilled").map(x => x.value);
+  tallyData = got.length ? got.reduce((a, c) => ((c.replies || 0) > (a.replies || 0) ? c : a)) : null;
+  return tallyData;
+}
+function renderTally(myPicks, addMine, myDinner) {
+  const el = $("tally");
+  if (!tallyData) { el.hidden = true; return; }
+  const counts = EVENT.poll.options.map(o => {
+    const mine = myPicks.includes(o.value);
+    return Math.max((tallyData[o.value] || 0) + (addMine && mine ? 1 : 0), mine ? 1 : 0);
+  });
+  const replies = Math.max((tallyData.replies || 0) + (addMine ? 1 : 0), myPicks.length ? 1 : 0);
+  const max = Math.max(1, ...counts), top = Math.max(...counts);
+  el.innerHTML = "<h3>Where the votes stand</h3>";
+  EVENT.poll.options.forEach((o, k) => {
+    const row = document.createElement("div");
+    row.className = "trow" + (top > 0 && counts[k] === top ? " lead" : "");
+    row.innerHTML = '<div class="d"></div><div class="bar"><i></i></div><div class="n"></div>';
+    row.querySelector(".d").textContent = o.day.slice(0, 3) + ", " + o.date;
+    if (myPicks.includes(o.value)) { const m = document.createElement("small"); m.textContent = "your pick"; row.querySelector(".d").appendChild(m); }
+    row.querySelector(".n").textContent = counts[k];
+    el.appendChild(row);
+    requestAnimationFrame(() => requestAnimationFrame(() => { row.querySelector("i").style.width = (counts[k] / max * 100) + "%"; }));
+  });
+  const dinnerN = Math.max((tallyData.dinner || 0) + (addMine && myDinner ? 1 : 0), myDinner ? 1 : 0);
+  const drow = document.createElement("div");
+  drow.className = "trow dinner";
+  drow.innerHTML = '<div class="d">Dancing after</div><div class="bar"><i></i></div><div class="n"></div>';
+  if (myDinner) { const m = document.createElement("small"); m.textContent = "you're in"; drow.querySelector(".d").appendChild(m); }
+  drow.querySelector(".n").textContent = dinnerN;
+  el.appendChild(drow);
+  requestAnimationFrame(() => requestAnimationFrame(() => { drow.querySelector("i").style.width = (replies ? dinnerN / replies * 100 : 0) + "%"; }));
+  const note = document.createElement("p"); note.className = "tnote";
+  note.textContent = replies
+    ? replies + (replies === 1 ? " reply" : " replies") + (EVENT.demo ? " so far" : " so far · updates every few minutes")
+    : "No votes yet. Yours can be the first.";
+  el.appendChild(note);
+  el.hidden = false;
+}
+/* "baseline" = the counts before this person voted. After voting, add their vote only if
+   Google's published copy hasn't picked it up yet (more replies than the baseline = it has). */
+let baseline = null, tallyRun = 0;
+async function showTally(where, myPicks, justVoted, myDinner) {
+  if (!tallyOn) return;
+  const el = $("tally");
+  where.appendChild(el);
+  const run = ++tallyRun;
+  let shown = null;
+  const draw = async (first) => {
+    await fetchTally();
+    if (run !== tallyRun || (!first && el.hidden)) return;
+    let add = false;
+    if (justVoted) add = !(baseline && tallyData && (tallyData.replies || 0) > (baseline.replies || 0));
+    else if (tallyData) baseline = tallyData;
+    const sig = JSON.stringify([tallyData, add]);
+    if (!first && sig === shown) return;   // nothing new: leave the chart as is
+    shown = sig;
+    renderTally(myPicks, add, !!myDinner);
+  };
+  await draw(true);
+  // Google's copies catch up within seconds to minutes: look again twice and update quietly if newer
+  [4000, 12000].forEach(ms => setTimeout(() => draw(false), ms));
+}
+/* ---- headcount line (fixed-date mode): "8 coming · 5 staying for dinner", no names ---- */
+const headOn = !POLL && !!((EVENT.poll && EVENT.poll.resultsCsv) || EVENT.demo);
+function headLine(me, add) {
+  const d = tallyData || {};
+  let coming = (d.coming || 0) + (add && me && me.attending ? 1 : 0);
+  let din = (d.dinner || 0) + (add && me && me.attending && me.dinner ? 1 : 0);
+  if (me && me.attending) { coming = Math.max(coming, 1); if (me.dinner) din = Math.max(din, 1); }
+  if (!coming) return "";
+  return "<b>" + coming + "</b> coming · <b>" + din + "</b> staying for dancing";
+}
+let headRun = 0;
+async function showHead(el, me, justVoted) {
+  if (!headOn) return;
+  const run = ++headRun;
+  let shown = null;
+  const draw = async () => {
+    await fetchTally();
+    if (run !== headRun) return;
+    let add = false;
+    if (justVoted) add = !(baseline && tallyData && (tallyData.replies || 0) > (baseline.replies || 0));
+    else if (tallyData) baseline = tallyData;
+    const html = headLine(me, add);
+    if (html === shown) return;
+    shown = html;
+    el.innerHTML = html; el.hidden = !html;
+  };
+  await draw();
+  [4000, 12000].forEach(ms => setTimeout(draw, ms));
+}
+if (headOn) showHead($("head-form"), null, false);
+
+if (tallyOn) {
+  fetchTally().then(d => { if (d && !baseline) baseline = d; });
+  $("peek").hidden = false;
+  $("peek").onclick = async () => {
+    const open = $("peek").getAttribute("aria-expanded") === "true";
+    if (open) { $("tally").hidden = true; $("peek").setAttribute("aria-expanded", "false"); $("peek").textContent = "See the votes so far"; return; }
+    $("peek").setAttribute("aria-expanded", "true"); $("peek").textContent = "Hide the votes";
+    await showTally($("form-view"), [], false);
+  };
+}
+
+function showThanks(s, returning) {
+  const first = s.name.split(" ")[0];
+  let h, p;
+  if (POLL) {
+    const any = s.picked && s.picked.length;
+    h = returning ? "Your dates are in, " + first : (any ? "Thanks, " + first + "!" : "Thanks for letting us know, " + first);
+    p = any
+      ? "You picked " + listText(s.picked) + (s.dinner ? ", and you're staying for dancing." : ".") + " We'll share the final date soon."
+      : "None of these dates work for you. We'll miss you, and hope to catch you next time.";
+  } else {
+    h = returning
+      ? (s.attending ? "You're on the list, " + first : "We have your reply, " + first)
+      : (s.attending ? "See you there, " + first + "!" : "We'll miss you, " + first);
+    p = s.attending
+      ? (s.dinner ? "You're down for supper and dancing." : "You're down for supper.")
+      : (returning ? "You said you can't make it." : "Thanks for letting us know.");
+  }
+  $("thanks-h").textContent = h; $("thanks-p").textContent = p;
+  $("form-view").hidden = true; $("thanks-view").hidden = false;
+  if (POLL) showTally($("tally-slot"), s.picked || [], !returning && !s.changed, s.dinner);
+  else showHead($("head-thanks"), s, !returning && !s.changed);
+}
+
+/* Returning guest on the same phone: show their saved reply */
+try {
+  const s = JSON.parse(localStorage.getItem(store) || "null");
+  if (s && s.name) {
+    $("name").value = s.name;
+    if (POLL && Array.isArray(s.picked)) {
+      picked = s.picked; noneWork = !!s.noneWork; syncPoll(); setDinner(!!s.dinner && !noneWork);
+      showThanks(s, true);
+    } else if (!POLL && typeof s.attending === "boolean") {
+      setAtt(s.attending); setDinner(!!s.dinner && s.attending);
+      showThanks(s, true);
+    }
+  }
+} catch (e) {}
+
+const isPreview = /claude\.ai$/.test(location.hostname) || !!EVENT.demo;
+if (isPreview) { $("hint").hidden = false; $("hint").textContent = EVENT.demo ? "Sample invitation · tap around, nothing is saved" : "Design preview · replies are recorded on the live invitation link."; }
+
+async function sendToForm(fields, dates) {
+  const body = new URLSearchParams();
+  Object.entries(fields).forEach(([k, v]) => body.append(k, v));
+  dates.forEach(v => body.append(EVENT.poll.entry, v));
+  try {
+    await fetch(EVENT.form.action, { method: "POST", mode: "no-cors", body, keepalive: true });
+    return true;
+  } catch (e) {
+    try {
+      const f = $("gf");
+      f.action = EVENT.form.action;
+      f.querySelectorAll(".gf-x").forEach(x => x.remove());
+      [...body.entries()].forEach(([k, v]) => { const i = document.createElement("input"); i.type = "hidden"; i.className = "gf-x"; i.name = k; i.value = v; f.appendChild(i); });
+      f.submit();
+      return true;
+    } catch (x) { return false; }
+  }
+}
+$("rsvp").onsubmit = async e => {
+  e.preventDefault();
+  const name = $("name").value.trim();
+  const err = $("err");
+  if (!name) { err.textContent = "Please add your name so we know who's replying."; err.hidden = false; $("name").focus(); return; }
+  if (POLL && !picked.length) { err.textContent = "Tap at least one date that works for you."; err.hidden = false; return; }
+  if (!POLL && attending === null) { err.textContent = "Please tap Yes or Can't make it."; err.hidden = false; return; }
+  err.hidden = true;
+  const yes = POLL ? picked.length > 0 : attending;
+  // Same name as the reply saved on this phone = a change; a different name = a new person
+  let prevName = ""; try { prevName = (JSON.parse(localStorage.getItem(store) || "null") || {}).name || ""; } catch (x) {}
+  const s = { name, attending: yes, dinner: yes && dinner, picked: picked.slice(), noneWork, changed: !!prevName && prevName.trim().toLowerCase() === name.toLowerCase() };
+  $("submit").disabled = true; $("submit").textContent = "Sending…";
+
+  // Re-take the "before this vote" count right now (keeping the highest seen), so a stale early read can't hide this vote
+  if (((POLL && tallyOn) || headOn) && !s.changed) {
+    const before = baseline;
+    const pre = await fetchTally();
+    baseline = (pre && (!before || (pre.replies || 0) > (before.replies || 0))) ? pre : before;
+  }
+  if (!isPreview) {
+    const fields = {};
+    fields[EVENT.form.name] = name;
+    fields[EVENT.form.attending] = yes ? "Yes" : "No";
+    fields[EVENT.form.dinner] = s.dinner ? "Yes" : "No";
+    const ok = await sendToForm(fields, POLL ? s.picked : []);
+    if (!ok) {
+      err.textContent = "Couldn't send just now. Check your connection and tap Send again.";
+      err.hidden = false;
+      $("submit").disabled = false; $("submit").textContent = POLL ? "Send my dates" : "Send my RSVP";
+      return;
+    }
+  }
+  try { localStorage.setItem(store, JSON.stringify(s)); } catch (e) {}
+
+  setTimeout(() => {
+    showThanks(s, false);
+    window.scrollTo({ top: document.querySelector(".rsvp").offsetTop - 12, behavior: "smooth" });
+  }, isPreview ? 400 : 900);
+};
+$("again").onclick = () => {
+  $("thanks-view").hidden = true; $("form-view").hidden = false;
+  if (headOn) showHead($("head-form"), null, false);
+  if (tallyOn) { $("tally").hidden = true; $("form-view").appendChild($("tally")); $("peek").setAttribute("aria-expanded", "false"); $("peek").textContent = "See the votes so far"; }
+  $("submit").disabled = false; $("submit").textContent = POLL ? "Send my dates" : "Send my RSVP";
+};
+</script>
+</body>
+</html>
