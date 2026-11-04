@@ -147,7 +147,9 @@
   .trow .d small { display: block; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--berry); line-height: 1.2; }
   .trow .bar { height: 8px; border-radius: 999px; background: #EBE0CC; overflow: hidden; }
   .trow .bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--card); transition: width .9s cubic-bezier(.3,.7,.2,1); }
-  .trow.lead .bar i { background: var(--berry); }
+  .trow.lead .bar i { background: var(--gold); }
+  .trow.dinner { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--paper-line); }
+  .trow.dinner .bar i { background: var(--pine); }
   .trow .n { text-align: right; font-weight: 500; font-variant-numeric: tabular-nums; }
   .tnote { margin: 6px 0 0; font-size: 12px; color: var(--ink-soft); }
   .peek { display: block; margin: 14px auto 0; font: 500 13px var(--body); color: var(--berry); background: none; border: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
@@ -469,7 +471,7 @@ async function fetchTally() {
   tallyData = got.length ? got.reduce((a, c) => ((c.replies || 0) > (a.replies || 0) ? c : a)) : null;
   return tallyData;
 }
-function renderTally(myPicks, addMine) {
+function renderTally(myPicks, addMine, myDinner) {
   const el = $("tally");
   if (!tallyData) { el.hidden = true; return; }
   const counts = EVENT.poll.options.map(o => (tallyData[o.value] || 0) + (addMine && myPicks.includes(o.value) ? 1 : 0));
@@ -486,6 +488,14 @@ function renderTally(myPicks, addMine) {
     el.appendChild(row);
     requestAnimationFrame(() => requestAnimationFrame(() => { row.querySelector("i").style.width = (counts[k] / max * 100) + "%"; }));
   });
+  const dinnerN = (tallyData.dinner || 0) + (addMine && myDinner ? 1 : 0);
+  const drow = document.createElement("div");
+  drow.className = "trow dinner";
+  drow.innerHTML = '<div class="d">Dinner after</div><div class="bar"><i></i></div><div class="n"></div>';
+  if (myDinner) { const m = document.createElement("small"); m.textContent = "you're in"; drow.querySelector(".d").appendChild(m); }
+  drow.querySelector(".n").textContent = dinnerN;
+  el.appendChild(drow);
+  requestAnimationFrame(() => requestAnimationFrame(() => { drow.querySelector("i").style.width = (replies ? dinnerN / replies * 100 : 0) + "%"; }));
   const note = document.createElement("p"); note.className = "tnote";
   note.textContent = replies
     ? replies + (replies === 1 ? " reply" : " replies") + " so far · updates every few minutes"
@@ -496,7 +506,7 @@ function renderTally(myPicks, addMine) {
 /* "baseline" = the counts before this person voted. After voting, add their vote only if
    Google's published copy hasn't picked it up yet (more replies than the baseline = it has). */
 let baseline = null;
-async function showTally(where, myPicks, justVoted) {
+async function showTally(where, myPicks, justVoted, myDinner) {
   if (!tallyOn) return;
   const el = $("tally");
   where.appendChild(el);
@@ -504,7 +514,7 @@ async function showTally(where, myPicks, justVoted) {
   let add = false;
   if (justVoted) add = !(baseline && tallyData && (tallyData.replies || 0) > (baseline.replies || 0));
   else if (tallyData) baseline = tallyData;
-  renderTally(myPicks, add);
+  renderTally(myPicks, add, !!myDinner);
 }
 if (tallyOn) {
   fetchTally().then(d => { if (d && !baseline) baseline = d; });
@@ -536,7 +546,7 @@ function showThanks(s, returning) {
   }
   $("thanks-h").textContent = h; $("thanks-p").textContent = p;
   $("form-view").hidden = true; $("thanks-view").hidden = false;
-  if (POLL) showTally($("tally-slot"), s.picked || [], !returning && !s.changed);
+  if (POLL) showTally($("tally-slot"), s.picked || [], !returning && !s.changed, s.dinner);
 }
 
 /* Returning guest on the same phone: show their saved reply */
