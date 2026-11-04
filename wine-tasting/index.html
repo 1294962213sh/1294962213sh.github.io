@@ -455,7 +455,7 @@ if (POLL) {
 const tallyOn = POLL && !!EVENT.poll.resultsCsv;
 let tallyData = null;
 /* Google serves published data from several servers that can lag each other for a few minutes,
-   so ask three times at once and keep the freshest answer (the one with the most replies). */
+   so ask six times at once and keep the freshest answer (the one with the most replies). */
 async function fetchOnce(k) {
   const r = await fetch(EVENT.poll.resultsCsv + "&t=" + Date.now() + k, { cache: "no-store" });
   if (!r.ok) throw new Error(r.status);
@@ -467,7 +467,7 @@ async function fetchOnce(k) {
   return map;
 }
 async function fetchTally() {
-  const got = (await Promise.allSettled([0, 1, 2].map(fetchOnce))).filter(x => x.status === "fulfilled").map(x => x.value);
+  const got = (await Promise.allSettled([0, 1, 2, 3, 4, 5].map(fetchOnce))).filter(x => x.status === "fulfilled").map(x => x.value);
   tallyData = got.length ? got.reduce((a, c) => ((c.replies || 0) > (a.replies || 0) ? c : a)) : null;
   return tallyData;
 }
@@ -508,16 +508,27 @@ function renderTally(myPicks, addMine, myDinner) {
 }
 /* "baseline" = the counts before this person voted. After voting, add their vote only if
    Google's published copy hasn't picked it up yet (more replies than the baseline = it has). */
-let baseline = null;
+let baseline = null, tallyRun = 0;
 async function showTally(where, myPicks, justVoted, myDinner) {
   if (!tallyOn) return;
   const el = $("tally");
   where.appendChild(el);
-  await fetchTally();
-  let add = false;
-  if (justVoted) add = !(baseline && tallyData && (tallyData.replies || 0) > (baseline.replies || 0));
-  else if (tallyData) baseline = tallyData;
-  renderTally(myPicks, add, !!myDinner);
+  const run = ++tallyRun;
+  let shown = null;
+  const draw = async (first) => {
+    await fetchTally();
+    if (run !== tallyRun || (!first && el.hidden)) return;
+    let add = false;
+    if (justVoted) add = !(baseline && tallyData && (tallyData.replies || 0) > (baseline.replies || 0));
+    else if (tallyData) baseline = tallyData;
+    const sig = JSON.stringify([tallyData, add]);
+    if (!first && sig === shown) return;   // nothing new: leave the chart as is
+    shown = sig;
+    renderTally(myPicks, add, !!myDinner);
+  };
+  await draw(true);
+  // Google's copies catch up within seconds to minutes: look again twice and update quietly if newer
+  [4000, 12000].forEach(ms => setTimeout(() => draw(false), ms));
 }
 if (tallyOn) {
   fetchTally().then(d => { if (d && !baseline) baseline = d; });
@@ -602,6 +613,12 @@ $("rsvp").onsubmit = async e => {
   const s = { name, attending: yes, dinner: yes && dinner, picked: picked.slice(), noneWork, changed: !!prevName && prevName.trim().toLowerCase() === name.toLowerCase() };
   $("submit").disabled = true; $("submit").textContent = "Sending…";
 
+  // Re-take the "before this vote" count right now (keeping the highest seen), so a stale early read can't hide this vote
+  if (POLL && tallyOn && !s.changed) {
+    const before = baseline;
+    const pre = await fetchTally();
+    baseline = (pre && (!before || (pre.replies || 0) > (before.replies || 0))) ? pre : before;
+  }
   if (!isPreview) {
     const fields = {};
     fields[EVENT.form.name] = name;
