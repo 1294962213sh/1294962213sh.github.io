@@ -141,6 +141,17 @@
   .none[aria-pressed="true"] { border-style: solid; border-color: var(--card); color: var(--card); background: #fff; }
   .dates button:focus-visible, .none:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
   @media (max-width: 380px) { .dates button { font-size: 13px; letter-spacing: 0; } }
+  .tally { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--paper-line); text-align: left; }
+  .tally h3 { margin: 0 0 12px; font: 500 11px var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); }
+  .trow { display: grid; grid-template-columns: 96px minmax(0, 1fr) 22px; align-items: center; gap: 10px; margin-bottom: 9px; font-size: 14px; color: var(--ink); }
+  .trow .d small { display: block; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--berry); line-height: 1.2; }
+  .trow .bar { height: 8px; border-radius: 999px; background: #EBE0CC; overflow: hidden; }
+  .trow .bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--card); transition: width .9s cubic-bezier(.3,.7,.2,1); }
+  .trow.lead .bar i { background: var(--berry); }
+  .trow .n { text-align: right; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .tnote { margin: 6px 0 0; font-size: 12px; color: var(--ink-soft); }
+  .peek { display: block; margin: 14px auto 0; font: 500 13px var(--body); color: var(--berry); background: none; border: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .peek:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
   .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .toggle-row .q { font-size: 15px; color: var(--ink); }
   .toggle-row .q small { display: block; color: var(--ink-soft); font-size: 12px; }
@@ -308,11 +319,14 @@
         <button class="btn" type="submit" id="submit">Send my RSVP</button>
         <p class="err" id="err" hidden></p>
         <p class="hint" id="hint" hidden></p>
+        <button type="button" class="peek" id="peek" hidden aria-expanded="false">See the votes so far</button>
       </form>
+      <div class="tally" id="tally" hidden aria-live="polite"></div>
     </div>
     <div id="thanks-view" class="thanks" hidden>
       <h2 id="thanks-h">Thank you!</h2>
       <p id="thanks-p"></p>
+      <div id="tally-slot"></div>
       <button type="button" class="linkbtn" id="again">Change my reply</button>
     </div>
   </section>
@@ -344,6 +358,8 @@ const EVENT = {
     active: true,
     label: "Early December · 6–7pm",
     entry: "entry.559354681",        // the form's "Which dates work for you?" question
+    // Counts-only "Tally" tab of the sheet, published to the web as CSV (no names). Empty hides the results.
+    resultsCsv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQp69_5Gj4nQ4-Rs2GrcJ81nW5ARiCy0nlys6RmOg_tpLOAKOLmbuXcRrDgYLZFQUsDEsJqzzsUnNp2/pub?gid=1092415382&single=true&output=csv",
     options: [
       { value: "Fri Dec 4",  day: "Friday",   date: "Dec 4" },
       { value: "Thu Dec 10", day: "Thursday", date: "Dec 10" },
@@ -433,6 +449,64 @@ if (POLL) {
   });
 }
 
+/* ---- live vote tally (poll mode) ---- */
+const tallyOn = POLL && !!EVENT.poll.resultsCsv;
+let tallyData = null;
+async function fetchTally() {
+  try {
+    const r = await fetch(EVENT.poll.resultsCsv + "&t=" + Date.now(), { cache: "no-store" });
+    if (!r.ok) throw new Error(r.status);
+    const map = {};
+    (await r.text()).trim().split(/\r?\n/).slice(1).forEach(line => {
+      const i = line.lastIndexOf(",");
+      map[line.slice(0, i).replace(/^"|"$/g, "")] = parseInt(line.slice(i + 1), 10) || 0;
+    });
+    tallyData = map;
+  } catch (e) { tallyData = null; }
+  return tallyData;
+}
+function renderTally(myPicks, addMine) {
+  const el = $("tally");
+  if (!tallyData) { el.hidden = true; return; }
+  const counts = EVENT.poll.options.map(o => (tallyData[o.value] || 0) + (addMine && myPicks.includes(o.value) ? 1 : 0));
+  const replies = (tallyData.replies || 0) + (addMine ? 1 : 0);
+  const max = Math.max(1, ...counts), top = Math.max(...counts);
+  el.innerHTML = "<h3>Where the votes stand</h3>";
+  EVENT.poll.options.forEach((o, k) => {
+    const row = document.createElement("div");
+    row.className = "trow" + (top > 0 && counts[k] === top ? " lead" : "");
+    row.innerHTML = '<div class="d"></div><div class="bar"><i></i></div><div class="n"></div>';
+    row.querySelector(".d").textContent = o.day.slice(0, 3) + ", " + o.date;
+    if (myPicks.includes(o.value)) { const m = document.createElement("small"); m.textContent = "your pick"; row.querySelector(".d").appendChild(m); }
+    row.querySelector(".n").textContent = counts[k];
+    el.appendChild(row);
+    requestAnimationFrame(() => requestAnimationFrame(() => { row.querySelector("i").style.width = (counts[k] / max * 100) + "%"; }));
+  });
+  const note = document.createElement("p"); note.className = "tnote";
+  note.textContent = replies
+    ? replies + (replies === 1 ? " reply" : " replies") + " so far · updates every few minutes"
+    : "No votes yet. Yours can be the first.";
+  el.appendChild(note);
+  el.hidden = false;
+}
+async function showTally(where, myPicks, addMine) {
+  if (!tallyOn) return;
+  const el = $("tally");
+  where.appendChild(el);
+  if (!tallyData) await fetchTally();
+  renderTally(myPicks, addMine);
+}
+if (tallyOn) {
+  $("peek").hidden = false;
+  $("peek").onclick = async () => {
+    const open = $("peek").getAttribute("aria-expanded") === "true";
+    if (open) { $("tally").hidden = true; $("peek").setAttribute("aria-expanded", "false"); $("peek").textContent = "See the votes so far"; return; }
+    $("peek").setAttribute("aria-expanded", "true"); $("peek").textContent = "Hide the votes";
+    tallyData = null;
+    await showTally($("form-view"), [], false);
+  };
+}
+
 function showThanks(s, returning) {
   const first = s.name.split(" ")[0];
   let h, p;
@@ -452,6 +526,7 @@ function showThanks(s, returning) {
   }
   $("thanks-h").textContent = h; $("thanks-p").textContent = p;
   $("form-view").hidden = true; $("thanks-view").hidden = false;
+  if (POLL) { tallyData = null; showTally($("tally-slot"), s.picked || [], !returning && !s.changed); }
 }
 
 /* Returning guest on the same phone: show their saved reply */
@@ -481,7 +556,8 @@ $("rsvp").onsubmit = e => {
   if (!POLL && attending === null) { err.textContent = "Please tap Yes or Can't make it."; err.hidden = false; return; }
   err.hidden = true;
   const yes = POLL ? picked.length > 0 : attending;
-  const s = { name, attending: yes, dinner: yes && dinner, picked: picked.slice(), noneWork };
+  let had = false; try { had = !!localStorage.getItem(store); } catch (x) {}
+  const s = { name, attending: yes, dinner: yes && dinner, picked: picked.slice(), noneWork, changed: had };
   $("submit").disabled = true; $("submit").textContent = "Sending…";
 
   if (!isPreview) {
@@ -506,6 +582,7 @@ $("rsvp").onsubmit = e => {
 };
 $("again").onclick = () => {
   $("thanks-view").hidden = true; $("form-view").hidden = false;
+  if (tallyOn) { $("tally").hidden = true; $("form-view").appendChild($("tally")); $("peek").setAttribute("aria-expanded", "false"); $("peek").textContent = "See the votes so far"; }
   $("submit").disabled = false; $("submit").textContent = POLL ? "Send my dates" : "Send my RSVP";
 };
 </script>
