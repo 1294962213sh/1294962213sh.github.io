@@ -154,6 +154,7 @@
   .tnote { margin: 6px 0 0; font-size: 12px; color: var(--ink-soft); }
   .peek { display: block; margin: 14px auto 0; font: 500 13px var(--body); color: var(--berry); background: none; border: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
   .peek:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .thanks-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px 20px; }
   .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .toggle-row .q { font-size: 15px; color: var(--ink); }
   .toggle-row .q small { display: block; color: var(--ink-soft); font-size: 12px; }
@@ -329,7 +330,10 @@
       <h2 id="thanks-h">Thank you!</h2>
       <p id="thanks-p"></p>
       <div id="tally-slot"></div>
-      <button type="button" class="linkbtn" id="again">Change my reply</button>
+      <div class="thanks-links">
+        <button type="button" class="linkbtn" id="again">Change my reply</button>
+        <button type="button" class="linkbtn" id="another">Reply for someone else</button>
+      </div>
     </div>
   </section>
 
@@ -474,8 +478,11 @@ async function fetchTally() {
 function renderTally(myPicks, addMine, myDinner) {
   const el = $("tally");
   if (!tallyData) { el.hidden = true; return; }
-  const counts = EVENT.poll.options.map(o => (tallyData[o.value] || 0) + (addMine && myPicks.includes(o.value) ? 1 : 0));
-  const replies = (tallyData.replies || 0) + (addMine ? 1 : 0);
+  const counts = EVENT.poll.options.map(o => {
+    const mine = myPicks.includes(o.value);
+    return Math.max((tallyData[o.value] || 0) + (addMine && mine ? 1 : 0), mine ? 1 : 0);
+  });
+  const replies = Math.max((tallyData.replies || 0) + (addMine ? 1 : 0), myPicks.length ? 1 : 0);
   const max = Math.max(1, ...counts), top = Math.max(...counts);
   el.innerHTML = "<h3>Where the votes stand</h3>";
   EVENT.poll.options.forEach((o, k) => {
@@ -488,7 +495,7 @@ function renderTally(myPicks, addMine, myDinner) {
     el.appendChild(row);
     requestAnimationFrame(() => requestAnimationFrame(() => { row.querySelector("i").style.width = (counts[k] / max * 100) + "%"; }));
   });
-  const dinnerN = (tallyData.dinner || 0) + (addMine && myDinner ? 1 : 0);
+  const dinnerN = Math.max((tallyData.dinner || 0) + (addMine && myDinner ? 1 : 0), myDinner ? 1 : 0);
   const drow = document.createElement("div");
   drow.className = "trow dinner";
   drow.innerHTML = '<div class="d">Dinner after</div><div class="bar"><i></i></div><div class="n"></div>';
@@ -567,7 +574,26 @@ try {
 const isPreview = /claude\.ai$/.test(location.hostname);
 if (isPreview) { $("hint").hidden = false; $("hint").textContent = "Design preview · replies are recorded on the live invitation link."; }
 
-$("rsvp").onsubmit = e => {
+let forOther = false;
+async function sendToForm(fields, dates) {
+  const body = new URLSearchParams();
+  Object.entries(fields).forEach(([k, v]) => body.append(k, v));
+  dates.forEach(v => body.append(EVENT.poll.entry, v));
+  try {
+    await fetch(EVENT.form.action, { method: "POST", mode: "no-cors", body, keepalive: true });
+    return true;
+  } catch (e) {
+    try {
+      const f = $("gf");
+      f.action = EVENT.form.action;
+      f.querySelectorAll(".gf-x").forEach(x => x.remove());
+      [...body.entries()].forEach(([k, v]) => { const i = document.createElement("input"); i.type = "hidden"; i.className = "gf-x"; i.name = k; i.value = v; f.appendChild(i); });
+      f.submit();
+      return true;
+    } catch (x) { return false; }
+  }
+}
+$("rsvp").onsubmit = async e => {
   e.preventDefault();
   const name = $("name").value.trim();
   const err = $("err");
@@ -577,30 +603,42 @@ $("rsvp").onsubmit = e => {
   err.hidden = true;
   const yes = POLL ? picked.length > 0 : attending;
   let had = false; try { had = !!localStorage.getItem(store); } catch (x) {}
-  const s = { name, attending: yes, dinner: yes && dinner, picked: picked.slice(), noneWork, changed: had };
+  const s = { name, attending: yes, dinner: yes && dinner, picked: picked.slice(), noneWork, changed: had && !forOther };
   $("submit").disabled = true; $("submit").textContent = "Sending…";
 
   if (!isPreview) {
-    const f = $("gf");
-    f.action = EVENT.form.action;
-    f.querySelectorAll(".gf-date").forEach(x => x.remove());
-    $("gf-name").name = EVENT.form.name; $("gf-name").value = name;
-    $("gf-att").name = EVENT.form.attending; $("gf-att").value = yes ? "Yes" : "No";
-    $("gf-dinner").name = EVENT.form.dinner; $("gf-dinner").value = s.dinner ? "Yes" : "No";
-    if (POLL) s.picked.forEach(v => {
-      const i = document.createElement("input"); i.type = "hidden"; i.className = "gf-date";
-      i.name = EVENT.poll.entry; i.value = v; f.appendChild(i);
-    });
-    try { f.submit(); } catch (x) {}
+    const fields = {};
+    fields[EVENT.form.name] = name;
+    fields[EVENT.form.attending] = yes ? "Yes" : "No";
+    fields[EVENT.form.dinner] = s.dinner ? "Yes" : "No";
+    const ok = await sendToForm(fields, POLL ? s.picked : []);
+    if (!ok) {
+      err.textContent = "Couldn't send just now. Check your connection and tap Send again.";
+      err.hidden = false;
+      $("submit").disabled = false; $("submit").textContent = POLL ? "Send my dates" : "Send my RSVP";
+      return;
+    }
   }
-  try { localStorage.setItem(store, JSON.stringify(s)); } catch (e) {}
+  // A reply made for a friend on this phone doesn't replace the phone owner's saved reply
+  if (!forOther) { try { localStorage.setItem(store, JSON.stringify(s)); } catch (e) {} }
 
   setTimeout(() => {
     showThanks(s, false);
     window.scrollTo({ top: document.querySelector(".rsvp").offsetTop - 12, behavior: "smooth" });
   }, isPreview ? 400 : 900);
 };
+$("another").onclick = () => {
+  forOther = true;
+  $("name").value = ""; picked = []; noneWork = false; setDinner(false);
+  if (POLL) syncPoll(); else { attending = null; $("att-yes").setAttribute("aria-pressed", "false"); $("att-no").setAttribute("aria-pressed", "false"); $("dinner-field").hidden = false; }
+  $("err").hidden = true;
+  $("thanks-view").hidden = true; $("form-view").hidden = false;
+  $("submit").disabled = false; $("submit").textContent = POLL ? "Send my dates" : "Send my RSVP";
+  if (tallyOn) { $("tally").hidden = true; $("form-view").appendChild($("tally")); $("peek").setAttribute("aria-expanded", "false"); $("peek").textContent = "See the votes so far"; }
+  $("name").focus();
+};
 $("again").onclick = () => {
+  forOther = false;
   $("thanks-view").hidden = true; $("form-view").hidden = false;
   if (tallyOn) { $("tally").hidden = true; $("form-view").appendChild($("tally")); $("peek").setAttribute("aria-expanded", "false"); $("peek").textContent = "See the votes so far"; }
   $("submit").disabled = false; $("submit").textContent = POLL ? "Send my dates" : "Send my RSVP";
