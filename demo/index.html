@@ -152,10 +152,10 @@
   .tally { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--paper-line); text-align: left; }
   .tally h3 { margin: 0 0 12px; font: 500 11px var(--body); letter-spacing: .14em; text-transform: uppercase; color: #8A7A4E; }
   .trow { display: grid; grid-template-columns: 96px minmax(0, 1fr) 22px; align-items: center; gap: 10px; margin-bottom: 9px; font-size: 14px; color: var(--ink); }
-  .trow .d small { display: block; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--berry); line-height: 1.2; }
+  .trow .d small { display: block; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #8A7A4E; line-height: 1.2; }
   .trow .bar { height: 8px; border-radius: 999px; background: #EFEAE0; overflow: hidden; }
   .trow .bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--pine); transition: width .9s cubic-bezier(.3,.7,.2,1); }
-  .trow.lead .bar i { background: var(--berry); }
+  .trow.lead .bar i { background: var(--ink); }
   .trow.dinner { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--paper-line); }
   .trow.dinner .bar i { background: var(--pine); }
   .trow .n { text-align: right; font-weight: 500; font-variant-numeric: tabular-nums; }
@@ -163,20 +163,20 @@
   .headcount { margin: 14px 0 0; text-align: center; font-family: var(--display); font-style: italic; font-size: 18px; color: var(--ink); }
   .headcount b { font-style: normal; font-weight: 600; }
   .thanks .headcount { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--paper-line); }
-  .peek { display: block; margin: 14px auto 0; font: 500 13px var(--body); color: var(--berry); background: none; border: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .peek { display: block; margin: 14px auto 0; font: 500 13px var(--body); color: var(--ink); background: none; border: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
   .peek:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
   .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .toggle-row .q { font-size: 15px; color: var(--ink); }
   .toggle-row .q small { display: block; color: var(--ink-soft); font-size: 12px; }
   .toggle {
     flex: none; width: 52px; height: 30px; border-radius: 999px; border: 0; cursor: pointer;
-    background: #D9CDB8; position: relative; transition: background .2s;
+    background: #D9D3C4; position: relative; transition: background .2s;
   }
   .toggle::after {
     content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px;
     border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.3);
   }
-  .toggle[aria-checked="true"] { background: var(--berry); }
+  .toggle[aria-checked="true"] { background: var(--ink); }
   .toggle[aria-checked="true"]::after { transform: translateX(22px); }
   .btn {
     width: 100%; font: 500 14px var(--body); letter-spacing: .14em; text-transform: uppercase;
@@ -190,7 +190,7 @@
   .thanks { text-align: center; padding: 8px 0 2px; }
   .thanks h2 { font-size: 30px; color: var(--ink); }
   .thanks p { color: var(--ink-soft); margin: 6px 0 0; }
-  .linkbtn { margin-top: 14px; font: 500 13px var(--body); color: var(--berry); background: none; border: 0; text-decoration: underline; cursor: pointer; }
+  .linkbtn { margin-top: 14px; font: 500 13px var(--body); color: var(--ink); background: none; border: 0; text-decoration: underline; cursor: pointer; }
   .foot { text-align: center; font-size: 10px; color: rgba(47,58,68,.55); letter-spacing: .2em; text-transform: uppercase; }
   iframe.sink { position: absolute; width: 0; height: 0; border: 0; visibility: hidden; }
 
