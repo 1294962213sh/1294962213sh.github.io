@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1E0A15">
-<meta name="description" content="A toast to the semester, almost done, with a sommelier at Scarsdale Wine Merchants, 6–7pm. Help pick the date: Dec 4, 10 or 11.">
+<meta name="description" content="A toast to the semester, almost done, with a sommelier at Scarsdale Wine Merchants. Thursday, December 10 · 6–7pm. Tap to RSVP.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Invitations">
 <meta property="og:image" content="https://1294962213sh.github.io/wine-tasting/preview.jpg">
@@ -14,8 +14,8 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Ladies' Wine Tasting</title>
-<meta property="og:title" content="Ladies' Wine Tasting · Early December">
-<meta property="og:description" content="A toast to the semester, almost done, with a sommelier at Scarsdale Wine Merchants, 6–7pm. Help pick the date: Dec 4, 10 or 11.">
+<meta property="og:title" content="Ladies' Wine Tasting · Dec 10">
+<meta property="og:description" content="A toast to the semester, almost done, with a sommelier at Scarsdale Wine Merchants. Thursday, December 10 · 6–7pm. Tap to RSVP.">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@400;500&display=swap">
 <style>
   /* Layout: one invitation card on a midnight-plum ground; RSVP below on champagne paper. Single committed look (dark). */
@@ -85,7 +85,8 @@
   .where { margin: 2px 0 0; font-family: var(--display); font-size: 18px; color: var(--cream-soft); }
   .note { margin: 16px auto 0; max-width: 38ch; font-family: var(--display); font-style: italic; font-size: 17px; line-height: 1.45; color: var(--cream-soft); }
 
-  .actions { margin-top: 22px; display: grid; gap: 8px; }
+  .actions { margin-top: 22px; display: grid; gap: 8px; position: relative; z-index: 1; }
+  .actions .pill { background: rgba(34,10,24,.92); }
   .actions .lbl { font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); opacity: .9; }
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; min-width: 0; }
   #map { justify-self: center; padding-inline: 22px; }
@@ -152,6 +153,9 @@
   .trow.dinner .bar i { background: var(--card); }
   .trow .n { text-align: right; font-weight: 500; font-variant-numeric: tabular-nums; }
   .tnote { margin: 6px 0 0; font-size: 12px; color: var(--ink-soft); }
+  .headcount { margin: 14px 0 0; text-align: center; font-family: var(--display); font-style: italic; font-size: 18px; color: var(--card); }
+  .headcount b { font-style: normal; font-weight: 600; }
+  .thanks .headcount { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--paper-line); }
   .peek { display: block; margin: 14px auto 0; font: 500 13px var(--body); color: var(--berry); background: none; border: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
   .peek:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
   .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -270,7 +274,7 @@
       <p class="sub" id="sub">A toast to the semester, almost done</p>
       <h1 id="title">Ladies' Wine Tasting</h1>
       <div class="orn" aria-hidden="true"><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg></div>
-      <p class="when" id="when">Early December · 6–7pm</p>
+      <p class="when" id="when">Thursday, December 10 · 6–7pm</p>
       <p class="where" id="where">Scarsdale Wine Merchants<br>30 East Pkwy, Scarsdale</p>
       <p class="note" id="note">Good wine and a casual guided tasting with a sommelier, as the semester winds down and the holidays begin. About $50 each. Dinner after at Chat in Scarsdale village for anyone who can stay, bill split.</p>
 
@@ -321,6 +325,7 @@
         <button class="btn" type="submit" id="submit">Send my RSVP</button>
         <p class="err" id="err" hidden></p>
         <p class="hint" id="hint" hidden></p>
+        <p class="headcount" id="head-form" hidden aria-live="polite"></p>
         <button type="button" class="peek" id="peek" hidden aria-expanded="false">See the votes so far</button>
       </form>
       <div class="tally" id="tally" hidden aria-live="polite"></div>
@@ -328,6 +333,7 @@
     <div id="thanks-view" class="thanks" hidden>
       <h2 id="thanks-h">Thank you!</h2>
       <p id="thanks-p"></p>
+      <p class="headcount" id="head-thanks" hidden aria-live="polite"></p>
       <div id="tally-slot"></div>
       <button type="button" class="linkbtn" id="again">Change my reply</button>
     </div>
@@ -350,14 +356,14 @@ const EVENT = {
   subtitle: "",                       // small caps line under the title; empty hides it
   eyebrow: "",                        // small caps line above the subtitle; empty hides it
   sub: "A toast to the semester, almost done",
-  start: "2026-12-03T18:00:00",      // local time
-  end:   "2026-12-03T19:00:00",
+  start: "2026-12-10T18:00:00",      // local time
+  end:   "2026-12-10T19:00:00",
   tz:    "America/New_York",
-  dateLabel: "Thursday, December 3 · 6–7pm",   // used once the poll is closed
+  dateLabel: "Thursday, December 10 · 6–7pm",  // date set Nov 4 (the store could only do Dec 10)
   // DATE POLL — while active, guests pick every date that works instead of a single Yes/No.
   // To close the poll: set active to false, then update start/end/dateLabel above to the winning date.
   poll: {
-    active: true,
+    active: false,                   // poll closed Nov 4 → normal RSVP; the poll version is saved in _templates/date-poll
     label: "Early December · 6–7pm",
     entry: "entry.559354681",        // the form's "Which dates work for you?" question
     // Counts-only "Tally" tab of the sheet, published to the web as CSV (no names). Empty hides the results.
@@ -530,6 +536,37 @@ async function showTally(where, myPicks, justVoted, myDinner) {
   // Google's copies catch up within seconds to minutes: look again twice and update quietly if newer
   [4000, 12000].forEach(ms => setTimeout(() => draw(false), ms));
 }
+/* ---- headcount line (fixed-date mode): "8 coming · 5 staying for dinner", no names ---- */
+const headOn = !POLL && !!(EVENT.poll && EVENT.poll.resultsCsv);
+function headLine(me, add) {
+  const d = tallyData || {};
+  let coming = (d.coming || 0) + (add && me && me.attending ? 1 : 0);
+  let din = (d.dinner || 0) + (add && me && me.attending && me.dinner ? 1 : 0);
+  if (me && me.attending) { coming = Math.max(coming, 1); if (me.dinner) din = Math.max(din, 1); }
+  if (!coming) return "";
+  return "<b>" + coming + "</b> coming · <b>" + din + "</b> staying for dinner";
+}
+let headRun = 0;
+async function showHead(el, me, justVoted) {
+  if (!headOn) return;
+  const run = ++headRun;
+  let shown = null;
+  const draw = async () => {
+    await fetchTally();
+    if (run !== headRun) return;
+    let add = false;
+    if (justVoted) add = !(baseline && tallyData && (tallyData.replies || 0) > (baseline.replies || 0));
+    else if (tallyData) baseline = tallyData;
+    const html = headLine(me, add);
+    if (html === shown) return;
+    shown = html;
+    el.innerHTML = html; el.hidden = !html;
+  };
+  await draw();
+  [4000, 12000].forEach(ms => setTimeout(draw, ms));
+}
+if (headOn) showHead($("head-form"), null, false);
+
 if (tallyOn) {
   fetchTally().then(d => { if (d && !baseline) baseline = d; });
   $("peek").hidden = false;
@@ -561,6 +598,7 @@ function showThanks(s, returning) {
   $("thanks-h").textContent = h; $("thanks-p").textContent = p;
   $("form-view").hidden = true; $("thanks-view").hidden = false;
   if (POLL) showTally($("tally-slot"), s.picked || [], !returning && !s.changed, s.dinner);
+  else showHead($("head-thanks"), s, !returning && !s.changed);
 }
 
 /* Returning guest on the same phone: show their saved reply */
@@ -614,7 +652,7 @@ $("rsvp").onsubmit = async e => {
   $("submit").disabled = true; $("submit").textContent = "Sending…";
 
   // Re-take the "before this vote" count right now (keeping the highest seen), so a stale early read can't hide this vote
-  if (POLL && tallyOn && !s.changed) {
+  if (((POLL && tallyOn) || headOn) && !s.changed) {
     const before = baseline;
     const pre = await fetchTally();
     baseline = (pre && (!before || (pre.replies || 0) > (before.replies || 0))) ? pre : before;
@@ -641,6 +679,7 @@ $("rsvp").onsubmit = async e => {
 };
 $("again").onclick = () => {
   $("thanks-view").hidden = true; $("form-view").hidden = false;
+  if (headOn) showHead($("head-form"), null, false);
   if (tallyOn) { $("tally").hidden = true; $("form-view").appendChild($("tally")); $("peek").setAttribute("aria-expanded", "false"); $("peek").textContent = "See the votes so far"; }
   $("submit").disabled = false; $("submit").textContent = POLL ? "Send my dates" : "Send my RSVP";
 };

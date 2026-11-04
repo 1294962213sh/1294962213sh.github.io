@@ -21,10 +21,10 @@ TZNAME:EDT
 END:DAYLIGHT
 END:VTIMEZONE
 BEGIN:VEVENT
-UID:wine-tasting-20261203@invites
+UID:wine-tasting-20261210@invites
 DTSTAMP:20261027T220000Z
-DTSTART;TZID=America/New_York:20261203T180000
-DTEND;TZID=America/New_York:20261203T190000
+DTSTART;TZID=America/New_York:20261210T180000
+DTEND;TZID=America/New_York:20261210T190000
 SUMMARY:Ladies' Wine Tasting
 LOCATION:Scarsdale Wine Merchants\, 30 East Pkwy\, Scarsdale\, NY 10583
 DESCRIPTION:Good wine and a casual guided tasting with a sommelier\, as the semester winds down and the holidays begin. About $50 each. Dinner after at Chat in Scarsdale village for anyone who can stay\, bill split.
