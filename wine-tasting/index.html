@@ -154,7 +154,6 @@
   .tnote { margin: 6px 0 0; font-size: 12px; color: var(--ink-soft); }
   .peek { display: block; margin: 14px auto 0; font: 500 13px var(--body); color: var(--berry); background: none; border: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
   .peek:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-  .thanks-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px 20px; }
   .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .toggle-row .q { font-size: 15px; color: var(--ink); }
   .toggle-row .q small { display: block; color: var(--ink-soft); font-size: 12px; }
@@ -330,10 +329,7 @@
       <h2 id="thanks-h">Thank you!</h2>
       <p id="thanks-p"></p>
       <div id="tally-slot"></div>
-      <div class="thanks-links">
-        <button type="button" class="linkbtn" id="again">Change my reply</button>
-        <button type="button" class="linkbtn" id="another">Reply for someone else</button>
-      </div>
+      <button type="button" class="linkbtn" id="again">Change my reply</button>
     </div>
   </section>
 
@@ -574,7 +570,6 @@ try {
 const isPreview = /claude\.ai$/.test(location.hostname);
 if (isPreview) { $("hint").hidden = false; $("hint").textContent = "Design preview · replies are recorded on the live invitation link."; }
 
-let forOther = false;
 async function sendToForm(fields, dates) {
   const body = new URLSearchParams();
   Object.entries(fields).forEach(([k, v]) => body.append(k, v));
@@ -602,8 +597,9 @@ $("rsvp").onsubmit = async e => {
   if (!POLL && attending === null) { err.textContent = "Please tap Yes or Can't make it."; err.hidden = false; return; }
   err.hidden = true;
   const yes = POLL ? picked.length > 0 : attending;
-  let had = false; try { had = !!localStorage.getItem(store); } catch (x) {}
-  const s = { name, attending: yes, dinner: yes && dinner, picked: picked.slice(), noneWork, changed: had && !forOther };
+  // Same name as the reply saved on this phone = a change; a different name = a new person
+  let prevName = ""; try { prevName = (JSON.parse(localStorage.getItem(store) || "null") || {}).name || ""; } catch (x) {}
+  const s = { name, attending: yes, dinner: yes && dinner, picked: picked.slice(), noneWork, changed: !!prevName && prevName.trim().toLowerCase() === name.toLowerCase() };
   $("submit").disabled = true; $("submit").textContent = "Sending…";
 
   if (!isPreview) {
@@ -619,26 +615,14 @@ $("rsvp").onsubmit = async e => {
       return;
     }
   }
-  // A reply made for a friend on this phone doesn't replace the phone owner's saved reply
-  if (!forOther) { try { localStorage.setItem(store, JSON.stringify(s)); } catch (e) {} }
+  try { localStorage.setItem(store, JSON.stringify(s)); } catch (e) {}
 
   setTimeout(() => {
     showThanks(s, false);
     window.scrollTo({ top: document.querySelector(".rsvp").offsetTop - 12, behavior: "smooth" });
   }, isPreview ? 400 : 900);
 };
-$("another").onclick = () => {
-  forOther = true;
-  $("name").value = ""; picked = []; noneWork = false; setDinner(false);
-  if (POLL) syncPoll(); else { attending = null; $("att-yes").setAttribute("aria-pressed", "false"); $("att-no").setAttribute("aria-pressed", "false"); $("dinner-field").hidden = false; }
-  $("err").hidden = true;
-  $("thanks-view").hidden = true; $("form-view").hidden = false;
-  $("submit").disabled = false; $("submit").textContent = POLL ? "Send my dates" : "Send my RSVP";
-  if (tallyOn) { $("tally").hidden = true; $("form-view").appendChild($("tally")); $("peek").setAttribute("aria-expanded", "false"); $("peek").textContent = "See the votes so far"; }
-  $("name").focus();
-};
 $("again").onclick = () => {
-  forOther = false;
   $("thanks-view").hidden = true; $("form-view").hidden = false;
   if (tallyOn) { $("tally").hidden = true; $("form-view").appendChild($("tally")); $("peek").setAttribute("aria-expanded", "false"); $("peek").textContent = "See the votes so far"; }
   $("submit").disabled = false; $("submit").textContent = POLL ? "Send my dates" : "Send my RSVP";
