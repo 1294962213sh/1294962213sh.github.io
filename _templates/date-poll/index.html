@@ -202,7 +202,9 @@
     .corner .pop:nth-of-type(1) { animation-delay: .9s } .corner .pop:nth-of-type(2) { animation-delay: 1.05s }
     .corner .pop:nth-of-type(3) { animation-delay: 1.2s } .corner .pop:nth-of-type(4) { animation-delay: 1.35s }
     .corner .pop:nth-of-type(5) { animation-delay: 1.5s }
-    .glass .liquid { animation: fill 1.4s cubic-bezier(.4,0,.2,1) .4s both, sway 5.5s ease-in-out 2s infinite; }
+    .glass .liquid { animation: fill 1.4s cubic-bezier(.4,0,.2,1) .4s both, sway 4.5s ease-in-out 2s infinite; }
+    .glass .wine { animation: slosh 3.6s linear infinite; }
+    .glass .wine2 { animation: slosh 5s linear infinite reverse; }
     .glass .glint { animation: glint 4s ease-in-out 2.2s infinite; }
     .sparkle { animation: twinkle 3.2s ease-in-out infinite; }
     .sparkle.s2 { animation-delay: .8s; animation-duration: 4.1s } .sparkle.s3 { animation-delay: 1.6s; animation-duration: 2.7s } .sparkle.s4 { animation-delay: 2.3s; animation-duration: 3.6s } .sparkle.s5 { animation-delay: 1.1s; animation-duration: 4.6s }
@@ -222,7 +224,8 @@
   @keyframes fill { from { transform: scaleY(0) } to { transform: scaleY(1) } }
   @keyframes lift { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
   @keyframes twinkle { 0%,100% { opacity: .2; transform: scale(.7) rotate(0deg) } 50% { opacity: 1; transform: scale(1.15) rotate(20deg) } }
-  @keyframes sway { 0%,100% { transform: scaleY(1) rotate(0deg) } 30% { transform: scaleY(1) rotate(-2.5deg) } 70% { transform: scaleY(1) rotate(2.5deg) } }
+  @keyframes sway { 0%,100% { transform: scaleY(1) rotate(0deg) } 30% { transform: scaleY(1) rotate(-3.5deg) } 70% { transform: scaleY(1) rotate(3.5deg) } }
+  @keyframes slosh { from { transform: translateX(0) } to { transform: translateX(36px) } }
   @keyframes glint { 0%,70%,100% { opacity: 0 } 80% { opacity: .9 } 90% { opacity: .2 } }
   @keyframes breathe { 0%,100% { box-shadow: 0 0 0 0 rgba(214,179,106,0); border-color: var(--gold) } 50% { box-shadow: 0 0 22px 0 rgba(214,179,106,.28), inset 0 0 18px rgba(214,179,106,.08); border-color: #EAD08E } }
   @keyframes sweep { 0% { background-position: 130% 0 } 35%,100% { background-position: -130% 0 } }
@@ -268,8 +271,10 @@
       <svg class="glass" viewBox="0 0 54 76" aria-hidden="true">
         <defs><clipPath id="bowl"><path d="M9 4 H45 Q45 40 27 44 Q9 40 9 4 Z"/></clipPath></defs>
         <g clip-path="url(#bowl)">
-          <rect class="liquid" x="9" y="20" width="36" height="24" fill="#8E2443"/>
-          <path d="M9 22 Q27 30 45 22 V44 H9 Z" fill="#6E1A33" opacity=".7"/>
+          <g class="liquid">
+            <path class="wine" d="M-27 22 Q-18 19 -9 22 T9 22 T27 22 T45 22 T63 22 T81 22 T99 22 V48 H-27 Z" fill="#8E2443"/>
+            <path class="wine wine2" d="M-27 25 Q-18 28.5 -9 25 T9 25 T27 25 T45 25 T63 25 T81 25 T99 25 V48 H-27 Z" fill="#6E1A33" opacity=".7"/>
+          </g>
           <path class="glint" d="M13 10 Q16 26 20 40" fill="none" stroke="#FFF4D6" stroke-width="1.6" stroke-linecap="round" opacity="0"/>
         </g>
         <path d="M9 4 H45 Q45 40 27 44 Q9 40 9 4 Z" fill="none" stroke="#D6B36A" stroke-width="1.3"/>
