@@ -8,7 +8,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#DCE5EC">
-<meta name="description" content="Nora is turning forty. Tea on the lawn, Pimm's at four, supper under the wisteria. A Saturday in June. Help pick the date: June 6, 13 or 14.">
+<meta name="description" content="Nora is turning forty. Tea on the lawn, Pimm's at four, supper under the wisteria. Saturday, June 13 · 4pm. Tap to RSVP.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Invitations">
 <meta property="og:image" content="https://1294962213sh.github.io/demo/preview.jpg">
@@ -18,8 +18,8 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>A Garden Party · sample invitation</title>
-<meta property="og:title" content="A Garden Party · pick a date">
-<meta property="og:description" content="Nora is turning forty. Tea on the lawn, Pimm's at four, supper under the wisteria. A Saturday in June. Help pick the date: June 6, 13 or 14.">
+<meta property="og:title" content="A Garden Party · June 13">
+<meta property="og:description" content="Nora is turning forty. Tea on the lawn, Pimm's at four, supper under the wisteria. Saturday, June 13 · 4pm. Tap to RSVP.">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@400;500&display=swap">
 <style>
   /* Layout: one invitation card on a midnight-plum ground; RSVP below on champagne paper. Single committed look (dark). */
@@ -170,6 +170,10 @@
   .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .toggle-row .q { font-size: 15px; color: var(--ink); }
   .toggle-row .q small { display: block; color: var(--ink-soft); font-size: 12px; }
+  .stepper { display: inline-flex; align-items: center; gap: 2px; border: 1px solid var(--gold); border-radius: 999px; padding: 2px; }
+  .stepper button { width: 30px; height: 26px; border: 0; border-radius: 999px; background: transparent; color: var(--ink); font: 500 18px var(--body); cursor: pointer; }
+  .stepper button:hover { background: rgba(185,162,110,.15); }
+  .stepper span { min-width: 22px; text-align: center; font: 500 15px var(--body); color: var(--ink); }
   .toggle {
     flex: none; width: 52px; height: 30px; border-radius: 999px; border: 0; cursor: pointer;
     background: #D9D3C4; position: relative; transition: background .2s;
@@ -291,7 +295,7 @@
       <p class="sub" id="sub">Nora is turning forty</p>
       <h1 id="title">A Garden Party</h1>
       <div class="orn" aria-hidden="true"><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg></div>
-      <p class="when" id="when">A Saturday in June · 4pm</p>
+      <p class="when" id="when">Saturday, June 13 · 4pm</p>
       <p class="where" id="where">The garden at Larchmont<br>Address to follow</p>
       <svg class="tea" viewBox="0 0 150 44" aria-hidden="true" fill="none" stroke="#B9A26E" stroke-width=".9" stroke-linecap="round" stroke-linejoin="round">
         <!-- teapot -->
@@ -351,6 +355,16 @@
             <button type="button" id="att-no" aria-pressed="false">Can't make it</button>
           </div>
         </div>
+        <div class="field" id="size-field" hidden>
+          <div class="toggle-row">
+            <div class="q">How many in your party?<small>Including you</small></div>
+            <div class="stepper"><button type="button" id="minus" aria-label="Fewer">−</button><span id="size">1</span><button type="button" id="plus" aria-label="More">+</button></div>
+          </div>
+        </div>
+        <div class="field" id="diet-field" hidden>
+          <label for="diet">Dietary notes · optional</label>
+          <input type="text" id="diet" name="diet" placeholder="Vegetarian, nut allergy, anything we should know">
+        </div>
         <div class="field" id="dinner-field">
           <div class="toggle-row">
             <div class="q">Staying for dancing after?<small>Optional · after pudding</small></div>
@@ -398,7 +412,7 @@ const EVENT = {
   // DATE POLL — while active, guests pick every date that works instead of a single Yes/No.
   // To close the poll: set active to false, then update start/end/dateLabel above to the winning date.
   poll: {
-    active: true,                    // sample: the poll stays open
+    active: false,                   // sample: fixed date, so the page shows the everyday RSVP
     label: "A Saturday in June · 4pm",
     entry: "",                       // no form behind the sample
     // Counts-only "Tally" tab of the sheet, published to the web as CSV (no names). Empty hides the results.
@@ -413,7 +427,7 @@ const EVENT = {
   addressDisplay: "The garden at Larchmont<br>Address to follow",
   details: "Tea on the lawn, Pimm's at four, and supper under the wisteria as the light goes. Hats and linen encouraged. Dancing after pudding for anyone who can stay.",
   // DEMO MODE — pretend vote counts shown in the chart; nothing is sent anywhere. Remove for a real event.
-  demo: { "Sat Jun 6": 5, "Sat Jun 13": 9, "Sun Jun 14": 4, dinner: 7, replies: 12 },
+  demo: { coming: 18, dinner: 11, replies: 21 },   // pretend headcount shown on the page
   // Google Form connection — where RSVPs are stored
   form: {
     action: "",
@@ -453,7 +467,9 @@ const POLL = !!(EVENT.poll && EVENT.poll.active);
 const store = "rsvp:" + EVENT.title + (POLL ? ":poll" : "");
 const listText = a => a.length < 2 ? (a[0] || "") : a.slice(0, -1).join(", ") + " and " + a[a.length - 1];
 
-let attending = null, dinner = false, picked = [], noneWork = false;
+let attending = null, dinner = false, picked = [], noneWork = false, size = 1;
+const setSize = v => { size = Math.min(6, Math.max(1, v)); $("size").textContent = size; };
+$("minus").onclick = () => setSize(size - 1); $("plus").onclick = () => setSize(size + 1);
 const setDinner = v => { dinner = v; $("dinner").setAttribute("aria-checked", String(v)); };
 $("dinner").onclick = () => setDinner(!dinner);
 
@@ -463,6 +479,7 @@ const setAtt = v => {
   $("att-yes").setAttribute("aria-pressed", v === true);
   $("att-no").setAttribute("aria-pressed", v === false);
   $("dinner-field").hidden = v === false;
+  $("size-field").hidden = v !== true; $("diet-field").hidden = v !== true;
   if (v !== true) setDinner(false);
   $("err").hidden = true;
 };
@@ -579,7 +596,7 @@ async function showTally(where, myPicks, justVoted, myDinner) {
 const headOn = !POLL && !!((EVENT.poll && EVENT.poll.resultsCsv) || EVENT.demo);
 function headLine(me, add) {
   const d = tallyData || {};
-  let coming = (d.coming || 0) + (add && me && me.attending ? 1 : 0);
+  let coming = (d.coming || 0) + (add && me && me.attending ? (me.size || 1) : 0);
   let din = (d.dinner || 0) + (add && me && me.attending && me.dinner ? 1 : 0);
   if (me && me.attending) { coming = Math.max(coming, 1); if (me.dinner) din = Math.max(din, 1); }
   if (!coming) return "";
@@ -630,8 +647,9 @@ function showThanks(s, returning) {
     h = returning
       ? (s.attending ? "You're on the list, " + first : "We have your reply, " + first)
       : (s.attending ? "See you there, " + first + "!" : "We'll miss you, " + first);
+    const who = s.size > 1 ? "You and " + (s.size - 1) + (s.size > 2 ? " guests are" : " guest are") : "You're";
     p = s.attending
-      ? (s.dinner ? "You're down for supper and dancing." : "You're down for supper.")
+      ? who + " down for the garden party" + (s.dinner ? ", and staying for dancing." : ".") + (s.diet ? " We've noted: " + s.diet + "." : "")
       : (returning ? "You said you can't make it." : "Thanks for letting us know.");
   }
   $("thanks-h").textContent = h; $("thanks-p").textContent = p;
@@ -649,7 +667,7 @@ try {
       picked = s.picked; noneWork = !!s.noneWork; syncPoll(); setDinner(!!s.dinner && !noneWork);
       showThanks(s, true);
     } else if (!POLL && typeof s.attending === "boolean") {
-      setAtt(s.attending); setDinner(!!s.dinner && s.attending);
+      setAtt(s.attending); setDinner(!!s.dinner && s.attending); setSize(s.size || 1); $("diet").value = s.diet || "";
       showThanks(s, true);
     }
   }
@@ -687,7 +705,7 @@ $("rsvp").onsubmit = async e => {
   const yes = POLL ? picked.length > 0 : attending;
   // Same name as the reply saved on this phone = a change; a different name = a new person
   let prevName = ""; try { prevName = (JSON.parse(localStorage.getItem(store) || "null") || {}).name || ""; } catch (x) {}
-  const s = { name, attending: yes, dinner: yes && dinner, picked: picked.slice(), noneWork, changed: !!prevName && prevName.trim().toLowerCase() === name.toLowerCase() };
+  const s = { name, attending: yes, dinner: yes && dinner, size: yes ? size : 0, diet: yes ? $("diet").value.trim() : "", picked: picked.slice(), noneWork, changed: !!prevName && prevName.trim().toLowerCase() === name.toLowerCase() };
   $("submit").disabled = true; $("submit").textContent = "Sending…";
 
   // Re-take the "before this vote" count right now (keeping the highest seen), so a stale early read can't hide this vote
