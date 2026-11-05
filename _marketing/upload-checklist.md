@@ -12,7 +12,7 @@ All files are in this folder. Each list below says which file goes where and whi
 6. **Type**: choose **Digital** (not physical). When Etsy asks how you deliver the file, choose **Made to order** so nothing is attached up front; you send the link by message after the buyer fills in the personalization box.
 7. **Description**: paste the ready-to-paste text in the box below.
 8. **Personalization**: switch it **ON**, make it **required**, and paste this prompt:
-   "Tell me about your party: who it's for, date and time (or 2–3 dates to poll), place, what guests should know, one extra question for guests, and an artist/house/mood you love"
+   "Tell me about your party: who it's for, date and time (or 2–3 dates to poll), place, what guests should know, one extra question for guests, and the style you want — your own theme, colors and mood, or an artist, a fashion house or an art style you love"
 9. **Price**: `$15`. Quantity: 999 (digital, made to order).
 10. **Processing time**: **1 day**.
 11. **AI disclosure** (Etsy asks whether AI tools were used; also keep this line in the description): "Designed with AI tools under my creative direction; each invitation is drawn to your description."
@@ -33,7 +33,7 @@ WHAT'S INCLUDED
 - Add-to-calendar and map buttons
 - Date not settled? A date poll is built in and becomes the final RSVP at the same link
 - Changes by email: the same link updates, nothing to resend
-- Optional after-party page (+$10): a second page for the brunch, the dancing or the day after, at its own link
+- Optional after-party page (+$10): a thank-you page for the morning after, with settle-up buttons (Venmo, PayPal, Zelle) and the per-person amount filled in
 
 LIVE WITHIN 24 HOURS
 Fill in the personalization box when you order. I draw it, you get the link by Etsy message within 24 hours, and tweaks by email are free.
