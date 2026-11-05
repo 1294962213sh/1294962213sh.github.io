@@ -60,6 +60,15 @@
   ol li { grid-template-columns: 30px 1fr; counter-increment: step; }
   ol li::before { content: counter(step); font-family: var(--display); font-size: 24px; font-style: italic; color: var(--accent); line-height: 1; margin-top: 2px; }
 
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .vs .col { padding: 12px 10px; border-radius: 4px; background: rgba(43,36,32,.03); }
+  .vs .col.ours { background: rgba(185,87,58,.07); outline: 1px solid var(--accent-dim); }
+  .vs .colh { font-family: var(--display); font-style: italic; font-size: 17px; color: var(--ink-soft); margin: 0 0 8px; }
+  .vs .ours .colh { color: var(--accent-deep); }
+  .vs p { margin: 0 0 8px; font-size: 13px; line-height: 1.4; color: var(--ink-soft); padding-left: 12px; position: relative; }
+  .vs p::before { content: "–"; position: absolute; left: 0; color: var(--accent-dim); }
+  .vs .ours p { color: var(--ink); }
+  .vs .ours p::before { content: "✦"; color: var(--accent); font-size: 9px; top: 2px; }
   .price { text-align: center; }
   .amount { font-family: var(--display); font-size: 54px; font-weight: 500; line-height: 1; margin: 6px 0 2px; }
   .amount sup { font-size: .45em; vertical-align: super; margin-right: 2px; }
@@ -348,6 +357,18 @@
       <li><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg><div><b>An extra question, counted</b><small>"Staying for dinner?" "Bringing kids?" Guests see the tally, never the names.</small></div></li>
       <li><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg><div><b>Changes by email</b><small>New time, new place, new wording: reply to one email and the same link updates.</small></div></li>
     </ul>
+  </section>
+
+  <section class="card" aria-labelledby="h-why">
+    <h2 id="h-why">Why not a template?</h2>
+    <div class="vs">
+      <div class="col"><div class="colh">Templates &amp; free apps</div>
+        <p>Pick from a gallery; everyone's looks alike</p><p>Static</p><p>Guests sign in or hand over a phone number</p><p>You set up the RSVP form yourself</p><p>Ads, "coins," upsells</p>
+      </div>
+      <div class="col ours"><div class="colh">This</div>
+        <p>Painted for you — name an artist or a house you love</p><p>It moves: petals drift, bubbles rise</p><p>One link. No app, no account, ever</p><p>RSVPs, headcount and dietary notes done for you</p><p>$15, flat. Live in 24 hours, made by a person</p>
+      </div>
+    </div>
   </section>
 
   <section class="card" aria-labelledby="h-how">
