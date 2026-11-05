@@ -323,7 +323,7 @@
         </div>
         <div class="field" id="dinner-field">
           <div class="toggle-row">
-            <div class="q">Staying for dinner after?<small>Optional, right after the tasting</small></div>
+            <div class="q"><span id="dinner-q">Staying for dinner after?</span><small id="dinner-s">Optional, right after the tasting</small></div>
             <button type="button" class="toggle" id="dinner" role="switch" aria-checked="false" aria-label="Staying for dinner"></button>
           </div>
         </div>
@@ -430,8 +430,9 @@ const setAtt = v => {
   attending = v;
   $("att-yes").setAttribute("aria-pressed", v === true);
   $("att-no").setAttribute("aria-pressed", v === false);
-  $("dinner-field").hidden = v === false;
-  if (v !== true) setDinner(false);
+  // Dinner stays open either way: "Can't make it" + dinner on = dinner only
+  $("dinner-q").textContent = v === false ? "Joining us for dinner instead?" : "Staying for dinner after?";
+  $("dinner-s").textContent = v === false ? "Dinner only is welcome, right after the tasting" : "Optional, right after the tasting";
   $("err").hidden = true;
 };
 $("att-yes").onclick = () => setAtt(true);
@@ -547,10 +548,11 @@ const headOn = !POLL && !!(EVENT.poll && EVENT.poll.resultsCsv);
 function headLine(me, add) {
   const d = tallyData || {};
   let coming = (d.coming || 0) + (add && me && me.attending ? 1 : 0);
-  let din = (d.dinner || 0) + (add && me && me.attending && me.dinner ? 1 : 0);
-  if (me && me.attending) { coming = Math.max(coming, 1); if (me.dinner) din = Math.max(din, 1); }
-  if (!coming) return "";
-  return "<b>" + coming + "</b> coming · <b>" + din + "</b> staying for dinner";
+  let din = (d.dinner || 0) + (add && me && me.dinner ? 1 : 0);
+  if (me && me.attending) coming = Math.max(coming, 1);
+  if (me && me.dinner) din = Math.max(din, 1);
+  if (!coming && !din) return "";
+  return "<b>" + coming + "</b> at the tasting · <b>" + din + "</b> at dinner";
 }
 let headRun = 0;
 async function showHead(el, me, justVoted) {
@@ -594,11 +596,13 @@ function showThanks(s, returning) {
       ? "You picked " + listText(s.picked) + (s.dinner ? ", and you're up for dinner after." : ".") + " We'll share the final date soon."
       : "None of these dates work for you. We'll miss you, and hope to catch you next time.";
   } else {
+    const dinnerOnly = !s.attending && s.dinner;
     h = returning
-      ? (s.attending ? "You're on the list, " + first : "We have your reply, " + first)
-      : (s.attending ? "See you there, " + first + "!" : "We'll miss you, " + first);
+      ? (s.attending || dinnerOnly ? "You're on the list, " + first : "We have your reply, " + first)
+      : (s.attending ? "See you there, " + first + "!" : dinnerOnly ? "See you at dinner, " + first + "!" : "We'll miss you, " + first);
     p = s.attending
       ? (s.dinner ? "You're down for the tasting and dinner." : "You're down for the tasting.")
+      : dinnerOnly ? "You're down for dinner only, skipping the tasting."
       : (returning ? "You said you can't make it." : "Thanks for letting us know.");
   }
   $("thanks-h").textContent = h; $("thanks-p").textContent = p;
@@ -616,7 +620,7 @@ try {
       picked = s.picked; noneWork = !!s.noneWork; syncPoll(); setDinner(!!s.dinner && !noneWork);
       showThanks(s, true);
     } else if (!POLL && typeof s.attending === "boolean") {
-      setAtt(s.attending); setDinner(!!s.dinner && s.attending);
+      setAtt(s.attending); setDinner(!!s.dinner);
       showThanks(s, true);
     }
   }
@@ -654,7 +658,7 @@ $("rsvp").onsubmit = async e => {
   const yes = POLL ? picked.length > 0 : attending;
   // Same name as the reply saved on this phone = a change; a different name = a new person
   let prevName = ""; try { prevName = (JSON.parse(localStorage.getItem(store) || "null") || {}).name || ""; } catch (x) {}
-  const s = { name, attending: yes, dinner: yes && dinner, picked: picked.slice(), noneWork, changed: !!prevName && prevName.trim().toLowerCase() === name.toLowerCase() };
+  const s = { name, attending: yes, dinner: POLL ? yes && dinner : dinner, picked: picked.slice(), noneWork, changed: !!prevName && prevName.trim().toLowerCase() === name.toLowerCase() };
   $("submit").disabled = true; $("submit").textContent = "Sending…";
 
   // Re-take the "before this vote" count right now (keeping the highest seen), so a stale early read can't hide this vote
