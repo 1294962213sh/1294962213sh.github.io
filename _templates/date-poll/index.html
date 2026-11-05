@@ -387,6 +387,7 @@ const EVENT = {
   address: "Scarsdale Wine Merchants, 30 East Pkwy, Scarsdale, NY 10583",
   addressDisplay: "Scarsdale Wine Merchants<br>30 East Pkwy, Scarsdale",   // how it reads on the card; the full address above feeds Maps and calendars
   details: "Good wine and a casual guided tasting with a sommelier, as the semester winds down and the holidays begin. About $50 each. Dinner after at Chat in Scarsdale village for anyone who can stay, bill split.",
+  preview: false,   // true = client preview: the page works but nothing is sent; set false once they have paid to go live
   // Google Form connection — where RSVPs are stored
   form: {
     action: "",
@@ -594,8 +595,8 @@ try {
   }
 } catch (e) {}
 
-const isPreview = /claude\.ai$/.test(location.hostname);
-if (isPreview) { $("hint").hidden = false; $("hint").textContent = "Design preview · replies are recorded on the live invitation link."; }
+const isPreview = /claude\.ai$/.test(location.hostname) || !!EVENT.preview;
+if (isPreview) { $("hint").hidden = false; $("hint").textContent = EVENT.preview ? "Preview · try it out, nothing is saved. RSVPs switch on once the invitation goes live." : "Design preview · replies are recorded on the live invitation link."; }
 
 async function sendToForm(fields, dates) {
   const body = new URLSearchParams();
