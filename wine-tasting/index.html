@@ -323,7 +323,7 @@
         </div>
         <div class="field" id="dinner-field">
           <div class="toggle-row">
-            <div class="q"><span id="dinner-q">Staying for dinner after?</span><small id="dinner-s">Optional, right after the tasting</small></div>
+            <div class="q">Staying for dinner after?<small>Optional, right after the tasting</small></div>
             <button type="button" class="toggle" id="dinner" role="switch" aria-checked="false" aria-label="Staying for dinner"></button>
           </div>
         </div>
@@ -430,9 +430,7 @@ const setAtt = v => {
   attending = v;
   $("att-yes").setAttribute("aria-pressed", v === true);
   $("att-no").setAttribute("aria-pressed", v === false);
-  // Dinner stays open either way: "Can't make it" + dinner on = dinner only
-  $("dinner-q").textContent = v === false ? "Joining us for dinner instead?" : "Staying for dinner after?";
-  $("dinner-s").textContent = v === false ? "Dinner only is welcome, right after the tasting" : "Optional, right after the tasting";
+  // Dinner toggle stays visible either way: "Can't make it" + dinner on = dinner only
   $("err").hidden = true;
 };
 $("att-yes").onclick = () => setAtt(true);
@@ -552,7 +550,7 @@ function headLine(me, add) {
   if (me && me.attending) coming = Math.max(coming, 1);
   if (me && me.dinner) din = Math.max(din, 1);
   if (!coming && !din) return "";
-  return "<b>" + coming + "</b> at the tasting · <b>" + din + "</b> at dinner";
+  return "<b>" + coming + "</b> coming · <b>" + din + "</b> staying for dinner";
 }
 let headRun = 0;
 async function showHead(el, me, justVoted) {
