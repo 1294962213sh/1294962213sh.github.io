@@ -60,15 +60,13 @@
   ol li { grid-template-columns: 30px 1fr; counter-increment: step; }
   ol li::before { content: counter(step); font-family: var(--display); font-size: 24px; font-style: italic; color: var(--accent); line-height: 1; margin-top: 2px; }
 
-  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .vs .col { padding: 12px 10px; border-radius: 4px; background: rgba(43,36,32,.03); }
-  .vs .col.ours { background: rgba(185,87,58,.07); outline: 1px solid var(--accent-dim); }
-  .vs .colh { font-family: var(--display); font-style: italic; font-size: 17px; color: var(--ink-soft); margin: 0 0 8px; }
-  .vs .ours .colh { color: var(--accent-deep); }
-  .vs p { margin: 0 0 8px; font-size: 13px; line-height: 1.4; color: var(--ink-soft); padding-left: 12px; position: relative; }
-  .vs p::before { content: "–"; position: absolute; left: 0; color: var(--accent-dim); }
-  .vs .ours p { color: var(--ink); }
-  .vs .ours p::before { content: "✦"; color: var(--accent); font-size: 9px; top: 2px; }
+  .vs-lede { margin: -6px 0 14px; font-size: 14px; color: var(--ink-soft); }
+  .vs2 { display: grid; gap: 0; }
+  .vs2 .r { display: grid; grid-template-columns: .9fr 20px 1.4fr; align-items: center; gap: 8px; padding: 11px 0; border-top: 1px solid var(--line); }
+  .vs2 .r:last-child { border-bottom: 1px solid var(--line); }
+  .vs2 .old { font-size: 13px; color: var(--ink-soft); text-decoration: line-through; text-decoration-color: rgba(107,94,85,.45); text-decoration-thickness: 1px; }
+  .vs2 .arr { text-align: center; color: var(--accent); font-size: 14px; }
+  .vs2 .new { font-family: var(--display); font-weight: 600; font-style: italic; font-size: 21px; line-height: 1.1; color: var(--accent-deep); }
   .price { text-align: center; }
   .how-pay { margin: 16px 0 0; font-family: var(--display); font-size: 17px; line-height: 1.4; color: var(--ink); }
   .chat .thread { display: grid; gap: 8px; margin-bottom: 14px; }
@@ -374,14 +372,14 @@
   </section>
 
   <section class="card" aria-labelledby="h-why">
-    <h2 id="h-why">Templates vs. this</h2>
-    <div class="vs">
-      <div class="col"><div class="colh">Templates &amp; free apps</div>
-        <p>Pick from a gallery; everyone's looks alike</p><p>Static</p><p>Guests sign in or hand over a phone number</p><p>You set up the RSVP form yourself</p><p>Ads, "coins," upsells</p>
-      </div>
-      <div class="col ours"><div class="colh">This</div>
-        <p>Painted for you — describe your own theme, colors and mood, or name an artist, a fashion house or an art style</p><p>It moves: petals drift, bubbles rise</p><p>One link. No app, no account, ever</p><p>RSVPs, headcount and dietary notes done for you</p><p>$15, flat. Live in 24 hours, made by a person</p>
-      </div>
+    <h2 id="h-why">Not a template.</h2>
+    <p class="vs-lede">The difference, in five lines.</p>
+    <div class="vs2">
+      <div class="r"><span class="old">Picked from a gallery</span><span class="arr">→</span><span class="new">Painted for you</span></div>
+      <div class="r"><span class="old">Static</span><span class="arr">→</span><span class="new">It moves</span></div>
+      <div class="r"><span class="old">Guests sign in</span><span class="arr">→</span><span class="new">One link, no app</span></div>
+      <div class="r"><span class="old">You wire the RSVP</span><span class="arr">→</span><span class="new">RSVPs done for you</span></div>
+      <div class="r"><span class="old">Ads and upsells</span><span class="arr">→</span><span class="new">$15, flat</span></div>
     </div>
   </section>
 
