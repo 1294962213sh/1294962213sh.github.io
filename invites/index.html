@@ -171,6 +171,25 @@
     .phone { animation-delay: .25s } .tap { animation-delay: .35s } .card:nth-of-type(1) { animation-delay: .45s } .card:nth-of-type(2) { animation-delay: .55s } .card:nth-of-type(3) { animation-delay: .65s } .card:nth-of-type(4) { animation-delay: .75s }
   }
   @keyframes lift { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
+
+  /* desktop: wider, two-column layout (phones keep the single column above) */
+  @media (min-width: 960px) {
+    body { padding: 48px 40px 64px; }
+    .wrap { max-width: 1120px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 40px; row-gap: 40px; align-items: start; }
+    .wrap > * { grid-column: 1 / -1; }
+    .wrap > header { grid-column: 1; align-self: center; text-align: left; }
+    header h1 { font-size: 58px; }
+    header .lede { font-size: 22px; max-width: 30em; }
+    header .orn { justify-content: flex-start; margin-left: 0; }
+    .hero-phone { grid-column: 2; }
+    .styles { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; max-width: 1000px; margin: 0 auto; }
+    .wrap > .card { grid-column: auto; align-self: stretch; padding: 30px 32px; }
+    .wrap > .chat { grid-column: 1 / -1; justify-self: center; width: 100%; max-width: 640px; align-self: start; }
+    .wrap > .faq { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; column-gap: 48px; align-content: start; }
+    .faq h2 { grid-column: 1 / -1; }
+    .faq details:last-of-type { border-bottom: 0; }
+    .price .btn { max-width: 380px; margin-left: auto; margin-right: auto; }
+  }
 </style>
 </head>
 <body>
@@ -183,7 +202,7 @@
     <div class="orn" aria-hidden="true"><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg></div>
   </header>
 
-  <div>
+  <div class="hero-phone">
     <div class="phone" aria-label="Sample invitation">
       <div class="screen"><iframe src="../demo/index.html?v=6" title="Sample invitation: A Garden Supper" loading="lazy"></iframe></div>
     </div>
@@ -397,7 +416,7 @@
     <div class="amount"><sup>$</sup><span id="price">15</span></div>
     <div class="per">per event · design, link, RSVPs and date poll included</div>
     <p class="addon"><b>+ $<span id="addon">10</span> · the after-party page.</b> A thank-you note with photos of the night and "settling up" buttons (Venmo, PayPal, Zelle) with the per-person amount filled in. Share it the morning after.</p>
-    <p class="how-pay">See it first. I paint a preview within 24 hours; when you love it, $<span id="price2">15</span> switches the RSVPs on.</p>
+    <p class="how-pay">See it first. I design a preview within 24 hours; when you love it, $<span id="price2">15</span> switches the RSVPs on.</p>
     <button class="btn" id="start" type="button">Tell me about your party</button>
     <a class="btn ghost" id="order" href="#" hidden>Order now for $<span id="price3">15</span></a>
     <a class="btn ghost" id="etsy" href="#" hidden target="_blank" rel="noopener">Or order on Etsy</a>
@@ -423,7 +442,7 @@
     </div>
   </section>
 
-  <section class="card" aria-labelledby="h-faq">
+  <section class="card faq" aria-labelledby="h-faq">
     <h2 id="h-faq">Questions</h2>
     <details><summary>Do my guests need an app or an account?</summary><p>No. They tap the link, type their name, and reply. It works on any phone.</p></details>
     <details><summary>What if the date isn't settled?</summary><p>Give me two or three options. Guests pick every date that works and see the running tally. Once you choose, tell me and the page switches to a normal RSVP with calendar buttons. Same link.</p></details>
@@ -464,7 +483,7 @@ const QS = [
   { k: "extra",  q: "One extra question for guests, if any.", ph: "Staying for dinner after? · Dietary notes? · Bringing a +1?", req: false },
   { k: "style",  q: "Now the fun part: describe the theme, colors and mood you want — or name an artist, a fashion house or an art style you love.", ph: "English garden party, powder blue and ivory, a little royal · Matisse, bold and joyful · Chanel: black, white, pearls · impressionist, soft and painterly", req: true },
   { k: "email",  q: "Where should I send the preview?", ph: "you@example.com", req: true, email: true },
-  { k: "name",   q: "And your name, so I know who I'm painting for.", ph: "First name is fine", req: true }
+  { k: "name",   q: "And your name, so I know who I'm designing for.", ph: "First name is fine", req: true }
 ];
 let step = 0; const answers = {};
 const esc = t => t.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
