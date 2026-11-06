@@ -204,7 +204,7 @@
 
   <div class="hero-phone">
     <div class="phone" aria-label="Sample invitation">
-      <div class="screen"><iframe src="../demo/index.html?v=6" title="Sample invitation: A Garden Supper" loading="lazy"></iframe></div>
+      <div class="screen"><iframe src="../demo/index.html?v=7" title="Sample invitation: A Garden Supper" loading="lazy"></iframe></div>
     </div>
     <p class="tap">Tap around · it's live · <a href="../demo/" target="_blank" rel="noopener">open full size</a></p>
   </div>
@@ -509,7 +509,7 @@ function brief() {
 async function send() {
   const subject = "Invitation request · " + (answers.party || "").slice(0, 60);
   if (SETTINGS.formEndpoint) {
-    const body = Object.assign({ _subject: subject, _replyto: answers.email }, answers);
+    const body = Object.assign({ _subject: subject, _replyto: answers.email }, answers, { came_from: new URLSearchParams(location.search).get("ref") || document.referrer || "direct" });
     const r = await fetch(SETTINGS.formEndpoint, { method: "POST", headers: { "Accept": "application/json", "Content-Type": "application/json" }, body: JSON.stringify(body) });
     if (!r.ok) throw new Error("send failed");
   } else {

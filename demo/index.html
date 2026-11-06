@@ -198,6 +198,10 @@
   .thanks p { color: var(--ink-soft); margin: 6px 0 0; }
   .linkbtn { margin-top: 14px; font: 500 13px var(--body); color: var(--ink); background: none; border: 0; text-decoration: underline; cursor: pointer; }
   .foot { text-align: center; font-size: 10px; color: rgba(47,58,68,.55); letter-spacing: .2em; text-transform: uppercase; }
+  .credit { color: rgba(47,58,68,.55); }
+  .credit { margin: -10px 0 0; text-align: center; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; }
+  .credit a { color: inherit; opacity: .75; text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 1px; }
+  .credit a:hover { opacity: 1; }
   iframe.sink { position: absolute; width: 0; height: 0; border: 0; visibility: hidden; }
 
   /* ---------- Motion: vine draws, berries pop, glass fills, sparkles twinkle. All visible at rest. ---------- */
@@ -389,6 +393,7 @@
   </section>
 
   <p class="foot">With love, from Nora's people</p>
+  <p class="credit"><a href="https://1294962213sh.github.io/invites/?ref=sample" target="_blank" rel="noopener">&#10022; Invitation by Invite as Art</a></p>
 </div>
 
 <iframe class="sink" name="gf-sink" title="hidden" aria-hidden="true"></iframe>
@@ -423,8 +428,8 @@ const EVENT = {
       { value: "Sun Jun 14", day: "Sunday",   date: "Jun 14" }
     ]
   },
-  address: "",                      // empty: no real place for the sample, so the Maps button stays off
-  addressDisplay: "The garden at Larchmont<br>Address to follow",
+  address: "Larchmont Manor Park, Larchmont, NY",   // sample place so the Maps button shows; empty hides it
+  addressDisplay: "Larchmont Manor Park<br>Larchmont, New York",
   details: "Tea on the lawn, Pimm's at four, and supper under the wisteria as the light goes. Hats and linen encouraged. Dancing after pudding for anyone who can stay.",
   // DEMO MODE — pretend vote counts shown in the chart; nothing is sent anywhere. Remove for a real event.
   demo: { coming: 18, dinner: 11, replies: 21 },   // pretend headcount shown on the page
