@@ -204,7 +204,7 @@
 
   <div class="hero-phone">
     <div class="phone" aria-label="Sample invitation">
-      <div class="screen"><iframe src="../demo/index.html?v=7" title="Sample invitation: A Garden Supper" loading="lazy"></iframe></div>
+      <div class="screen"><iframe id="sample" src="../demo/index.html?v=7" title="Sample invitation: A Garden Party" loading="lazy"></iframe></div>
     </div>
     <p class="tap">Tap around · it's live · <a href="../demo/" target="_blank" rel="noopener">open full size</a></p>
   </div>
@@ -533,6 +533,45 @@ $("ask").onsubmit = async e => {
     $("cerr").textContent = "Couldn't send just now. Check your connection and try again."; $("cerr").hidden = false;
   }
 };
+
+/* Phone preview: glide slowly down to the RSVP, pause, drift back up, repeat.
+   Stops for good as soon as the visitor touches, scrolls or clicks inside it. Off for reduced-motion. */
+(function () {
+  const frame = document.getElementById("sample");
+  if (!frame || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const SPEED = 30, START_DELAY = 3000, HOLD_BOTTOM = 3500, HOLD_TOP = 4000; // px per second (inside the phone), ms
+  let stopped = false, visible = false, started = false, raf = 0, timer = 0;
+  function stop() { stopped = true; cancelAnimationFrame(raf); clearTimeout(timer); }
+  function glide(win, to, done) {
+    const from = win.scrollY, dist = to - from;
+    if (Math.abs(dist) < 2) { done(); return; }
+    const dur = Math.abs(dist) / SPEED * 1000; let t0 = 0;
+    const step = ts => {
+      if (stopped) return;
+      if (!visible) { t0 = 0; raf = requestAnimationFrame(step); return; }   // pause while off-screen
+      if (!t0) t0 = ts - (win.scrollY - from) / dist * dur;
+      const k = Math.min(1, (ts - t0) / dur), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      win.scrollTo(0, from + dist * e);
+      if (k < 1) raf = requestAnimationFrame(step); else done();
+    };
+    raf = requestAnimationFrame(step);
+  }
+  function cycle(win) {
+    if (stopped) return;
+    const bottom = win.document.documentElement.scrollHeight - win.innerHeight;
+    glide(win, bottom, () => { timer = setTimeout(() => glide(win, 0, () => { timer = setTimeout(() => cycle(win), HOLD_TOP); }), HOLD_BOTTOM); });
+  }
+  function begin() {
+    if (started || stopped || !visible) return;
+    let win; try { win = frame.contentWindow; if (win.document.readyState !== "complete" || !/\/demo\//.test(win.location.pathname)) return; } catch (e) { return; }
+    started = true;
+    ["wheel", "touchstart", "pointerdown", "keydown"].forEach(ev => win.document.addEventListener(ev, stop, { passive: true, once: true }));
+    timer = setTimeout(() => cycle(win), START_DELAY);
+  }
+  new IntersectionObserver(es => { visible = es[0].isIntersecting; begin(); }, { threshold: .5 }).observe(frame);
+  frame.addEventListener("load", begin);
+  if (frame.contentDocument && frame.contentDocument.readyState === "complete") begin();
+})();
 </script>
 </body>
 </html>
