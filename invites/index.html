@@ -204,7 +204,13 @@
   window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } window.gtag = gtag;
   gtag("js", new Date());
   var ref = q.get("ref"), medium = { venue: "email", pin: "pinterest", tt: "tiktok", ig: "instagram", etsy: "etsy", guest: "invitation", sample: "invitation" }[ref];
-  gtag("config", ID, ref ? { campaign_source: ref, campaign_medium: medium || "link", campaign_name: "invite-test" } : {});
+  var cfg = {};
+  if (ref && !q.get("utm_source")) {   // turn the short link's ?ref= tag into standard campaign tags Analytics reads
+    var u = new URL(location.href);
+    u.searchParams.set("utm_source", ref); u.searchParams.set("utm_medium", medium || "link"); u.searchParams.set("utm_campaign", "invite-test");
+    cfg.page_location = u.toString();
+  }
+  gtag("config", ID, cfg);
   window.track = function (name, params) { gtag("event", name, params || {}); };
 })();
 </script>
