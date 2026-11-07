@@ -191,6 +191,23 @@
     .price .btn { max-width: 380px; margin-left: auto; margin-right: auto; }
   }
 </style>
+<script>
+/* Google Analytics: counts storefront visits by channel (the ?ref= tag on each short link becomes the "source").
+   Your own visits: open the storefront once with ?me=1 and this browser stops being counted (?me=0 counts it again). */
+(function () {
+  var ID = "G-YLN4RCBGCY";
+  var q = new URLSearchParams(location.search), me = false;
+  try { if (q.get("me") === "1") localStorage.setItem("iaa_me", "1"); if (q.get("me") === "0") localStorage.removeItem("iaa_me"); me = localStorage.getItem("iaa_me") === "1"; } catch (e) {}
+  window.track = function () {};
+  if (me) return;
+  var s = document.createElement("script"); s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + ID; document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } window.gtag = gtag;
+  gtag("js", new Date());
+  var ref = q.get("ref"), medium = { venue: "email", pin: "pinterest", tt: "tiktok", ig: "instagram", etsy: "etsy", guest: "invitation", sample: "invitation" }[ref];
+  gtag("config", ID, ref ? { campaign_source: ref, campaign_medium: medium || "link", campaign_name: "invite-test" } : {});
+  window.track = function (name, params) { gtag("event", name, params || {}); };
+})();
+</script>
 </head>
 <body>
 <div class="wrap">
@@ -470,7 +487,7 @@ const SETTINGS = {
 const $ = id => document.getElementById(id);
 $("price").textContent = SETTINGS.price; $("price2").textContent = SETTINGS.price; $("price3").textContent = SETTINGS.price; $("addon").textContent = SETTINGS.addOnPrice;
 if (SETTINGS.orderUrl) { $("order").href = SETTINGS.orderUrl; $("order").hidden = false; }
-if (SETTINGS.etsyUrl) { $("etsy").href = SETTINGS.etsyUrl; $("etsy").hidden = false; }
+if (SETTINGS.etsyUrl) { $("etsy").href = SETTINGS.etsyUrl; $("etsy").hidden = false; $("etsy").addEventListener("click", () => window.track("etsy_click")); }
 const canSend = !!(SETTINGS.formEndpoint || SETTINGS.requestEmail);
 if (!canSend) { $("start").hidden = true; $("soon").hidden = false; }
 
@@ -501,7 +518,7 @@ function showStep() {
   $("back").hidden = step === 0; $("next").textContent = step === QS.length - 1 ? "Send my request" : "Next";
   $("cerr").hidden = true; $("a").focus();
 }
-$("start").onclick = () => { $("chat").hidden = false; step = 0; showStep(); $("chat").scrollIntoView({ behavior: "smooth", block: "start" }); };
+$("start").onclick = () => { window.track("request_start"); $("chat").hidden = false; step = 0; showStep(); $("chat").scrollIntoView({ behavior: "smooth", block: "start" }); };
 $("back").onclick = () => { answers[QS[step].k] = $("a").value.trim(); step--; showStep(); };
 function brief() {
   return QS.map(d => d.q + "\n" + (answers[d.k] || "—")).join("\n\n") + "\n\nSent from the storefront · " + new Date().toLocaleString();
@@ -526,7 +543,7 @@ $("ask").onsubmit = async e => {
   $("next").disabled = true; $("next").textContent = "Sending…";
   try {
     await send();
-    $("ask").hidden = true; renderThread(); step = QS.length; renderThread(); $("done").hidden = false;
+    $("ask").hidden = true; renderThread(); step = QS.length; renderThread(); $("done").hidden = false; window.track("generate_lead");
     if (!SETTINGS.formEndpoint) $("done-p").textContent = "Your mail app should have opened with the request — just tap send. Your preview will follow within 24 hours.";
   } catch (x) {
     $("next").disabled = false; $("next").textContent = "Send my request";
