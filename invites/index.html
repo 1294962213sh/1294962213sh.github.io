@@ -208,6 +208,7 @@
   if (ref && !q.get("utm_source")) {   // turn the short link's ?ref= tag into standard campaign tags Analytics reads
     var u = new URL(location.href);
     u.searchParams.set("utm_source", ref); u.searchParams.set("utm_medium", medium || "link"); u.searchParams.set("utm_campaign", "invite-test");
+    try { history.replaceState(history.state, "", u.pathname + u.search + u.hash); } catch (e) {}
     cfg.page_location = u.toString();
   }
   gtag("config", ID, cfg);
