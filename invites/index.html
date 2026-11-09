@@ -111,7 +111,7 @@
   .swatch .seye { margin: 0; font-size: 8px; letter-spacing: .24em; text-transform: uppercase; color: var(--ac); font-weight: 500; }
   .swatch h3 { margin: 0 4px; font-family: var(--display); font-weight: 500; font-style: italic; font-size: 17.5px; line-height: 1.05; color: var(--fg); text-wrap: balance; }
   .swatch .srule { width: 26px; height: 1px; background: var(--ac); margin: 6px auto; opacity: .9; }
-  .swatch .sdate { margin: 0; font-family: var(--display); font-size: 12.5px; color: var(--fg2); }
+  .swatch .sdate { margin: 0; font-family: var(--display); font-size: 11.5px; white-space: nowrap; color: var(--fg2); }
   .swatch .spal { margin: 10px 0 0; text-align: center; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-soft); }
   .s-friends  { --bg: #F6EBDD; --fg: #4A2E22; --fg2: #7A5A48; --ac: #B9573A; }
   .s-holiday  { --bg: #2E0A13; --fg: #F6E9D2; --fg2: #DCC6A6; --ac: #D6B36A; }
@@ -189,6 +189,7 @@
     .styles { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; max-width: 1000px; margin: 0 auto; }
     /* four in a row: dark · light · dark · light (phones keep burgundy top-left, nocturne bottom-right) */
     .styles .s-nye { order: 3 } .styles .s-cookies { order: 4 }
+    .swatch .sdate { font-size: 12.5px; }
     .wrap > .card { grid-column: auto; align-self: stretch; padding: 30px 32px; }
     .wrap > .chat { grid-column: 1 / -1; justify-self: center; width: 100%; max-width: 640px; align-self: start; }
     .wrap > .faq { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; column-gap: 48px; align-content: start; }
