@@ -187,6 +187,8 @@
     header .orn { justify-content: flex-start; margin-left: 0; }
     .hero-phone { grid-column: 2; }
     .styles { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; max-width: 1000px; margin: 0 auto; }
+    /* four in a row: dark · light · dark · light (phones keep burgundy top-left, nocturne bottom-right) */
+    .styles .s-nye { order: 3 } .styles .s-cookies { order: 4 }
     .wrap > .card { grid-column: auto; align-self: stretch; padding: 30px 32px; }
     .wrap > .chat { grid-column: 1 / -1; justify-self: center; width: 100%; max-width: 640px; align-self: start; }
     .wrap > .faq { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; column-gap: 48px; align-content: start; }
