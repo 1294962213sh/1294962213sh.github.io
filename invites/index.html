@@ -196,6 +196,11 @@
     .faq h2 { grid-column: 1 / -1; }
     .faq details:last-of-type { border-bottom: 0; }
     .price .btn { max-width: 380px; margin-left: auto; margin-right: auto; }
+    /* under the four cards, a 2×2 grid: price | how it works, then not a template | what you get.
+       The request questions open full width below the first row. (Phones keep the page order.) */
+    .wrap > .price { order: 1 } .wrap > .card[aria-labelledby="h-how"] { order: 2 } .wrap > .chat { order: 3 }
+    .wrap > .card[aria-labelledby="h-why"] { order: 4 } .wrap > .card[aria-labelledby="h-get"] { order: 5 }
+    .wrap > .faq { order: 6 } .wrap > .foot { order: 7 }
   }
 </style>
 <script>
@@ -312,39 +317,6 @@
     </div>
   </section>
 
-  <section class="card" aria-labelledby="h-get">
-    <h2 id="h-get">What you get</h2>
-    <ul>
-      <li><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg><div><b>A one-of-a-kind design</b><small>Designed to your own theme, colors and mood — or in the spirit of an artist, a fashion house or an art style you love: palette, illustration, subtle animation. Not a template.</small></div></li>
-      <li><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg><div><b>One short link to share</b><small>Looks right in WhatsApp, iMessage and email, with a preview card.</small></div></li>
-      <li><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg><div><b>RSVPs you can actually read</b><small>A private guest list, one line per person, with a headcount. Shared with you on day one.</small></div></li>
-      <li><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg><div><b>A date poll, if you need one</b><small>Guests tap every date that works and see where the votes stand. When you pick, the page becomes the RSVP.</small></div></li>
-      <li><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg><div><b>An extra question, counted</b><small>"Staying for dinner?" "Bringing kids?" Guests see the tally, never the names.</small></div></li>
-      <li><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg><div><b>Changes by email</b><small>New time, new place, new wording: reply to one email and the same link updates.</small></div></li>
-    </ul>
-  </section>
-
-  <section class="card" aria-labelledby="h-why">
-    <h2 id="h-why">Not a template.</h2>
-    <p class="vs-lede">The difference, in five lines.</p>
-    <div class="vs2">
-      <div class="r"><span class="old">From a gallery</span><span class="arr">→</span><span class="new">Made for you, inspired by art</span></div>
-      <div class="r"><span class="old">A still image</span><span class="arr">→</span><span class="new">Animated. It moves</span></div>
-      <div class="r"><span class="old">Guests sign in</span><span class="arr">→</span><span class="new">No app, no phone, no email for guests</span></div>
-      <div class="r"><span class="old">You wire the RSVP</span><span class="arr">→</span><span class="new">RSVP tracking built in, for you</span></div>
-      <div class="r"><span class="old">Ads and upsells</span><span class="arr">→</span><span class="new">$15, flat</span></div>
-    </div>
-  </section>
-
-  <section class="card" aria-labelledby="h-how">
-    <h2 id="h-how">How it works</h2>
-    <ol>
-      <li><div><b>Tell me about the party</b><small>Five lines at checkout: who it's for, when (or the dates to poll), where, what guests should know — and a style you love — an artist like Monet or Matisse, a fashion house like Chanel or Dior, or an art style like impressionism. I draw in that spirit.</small></div></li>
-      <li><div><b>Your link arrives within 24 hours</b><small>Open it on your phone, ask for any tweaks, then paste it into the group.</small></div></li>
-      <li><div><b>Watch the replies come in</b><small>Your private guest list updates as people tap. I'm one email away until the party.</small></div></li>
-    </ol>
-  </section>
-
   <section class="card price" aria-labelledby="h-price">
     <h2 id="h-price">One party, one price</h2>
     <div class="amount"><sup>$</sup><span id="price">15</span></div>
@@ -374,6 +346,39 @@
       <h3>Thank you — I'm on it.</h3>
       <p id="done-p">Your preview will be in your inbox within 24 hours. Reply to that email with any changes.</p>
     </div>
+  </section>
+
+  <section class="card" aria-labelledby="h-why">
+    <h2 id="h-why">Not a template.</h2>
+    <p class="vs-lede">The difference, in five lines.</p>
+    <div class="vs2">
+      <div class="r"><span class="old">From a gallery</span><span class="arr">→</span><span class="new">Made for you, inspired by art</span></div>
+      <div class="r"><span class="old">A still image</span><span class="arr">→</span><span class="new">Animated. It moves</span></div>
+      <div class="r"><span class="old">Guests sign in</span><span class="arr">→</span><span class="new">No app, no phone, no email for guests</span></div>
+      <div class="r"><span class="old">You wire the RSVP</span><span class="arr">→</span><span class="new">RSVP tracking built in, for you</span></div>
+      <div class="r"><span class="old">Ads and upsells</span><span class="arr">→</span><span class="new">$15, flat</span></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="h-get">
+    <h2 id="h-get">What you get</h2>
+    <ul>
+      <li><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg><div><b>A one-of-a-kind design</b><small>Designed to your own theme, colors and mood — or in the spirit of an artist, a fashion house or an art style you love: palette, illustration, subtle animation. Not a template.</small></div></li>
+      <li><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg><div><b>One short link to share</b><small>Looks right in WhatsApp, iMessage and email, with a preview card.</small></div></li>
+      <li><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg><div><b>RSVPs you can actually read</b><small>A private guest list, one line per person, with a headcount. Shared with you on day one.</small></div></li>
+      <li><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg><div><b>A date poll, if you need one</b><small>Guests tap every date that works and see where the votes stand. When you pick, the page becomes the RSVP.</small></div></li>
+      <li><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg><div><b>An extra question, counted</b><small>"Staying for dinner?" "Bringing kids?" Guests see the tally, never the names.</small></div></li>
+      <li><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg><div><b>Changes by email</b><small>New time, new place, new wording: reply to one email and the same link updates.</small></div></li>
+    </ul>
+  </section>
+
+  <section class="card" aria-labelledby="h-how">
+    <h2 id="h-how">How it works</h2>
+    <ol>
+      <li><div><b>Tell me about the party</b><small>Five lines at checkout: who it's for, when (or the dates to poll), where, what guests should know — and a style you love — an artist like Monet or Matisse, a fashion house like Chanel or Dior, or an art style like impressionism. I draw in that spirit.</small></div></li>
+      <li><div><b>Your link arrives within 24 hours</b><small>Open it on your phone, ask for any tweaks, then paste it into the group.</small></div></li>
+      <li><div><b>Watch the replies come in</b><small>Your private guest list updates as people tap. I'm one email away until the party.</small></div></li>
+    </ol>
   </section>
 
   <section class="card faq" aria-labelledby="h-faq">
