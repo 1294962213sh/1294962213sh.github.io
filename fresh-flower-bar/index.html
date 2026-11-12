@@ -492,7 +492,7 @@ const EVENT = {
   ],
   hint: "Seats are limited · questions? Call or text (203) 800-3830",
   preview: true,                      // design preview: the interest form doesn't save anything
-  analyticsId: "",                    // a Google Analytics measurement ID for this client's invitations; empty = no tracking
+  analyticsId: "G-YLN4RCBGCY",        // Invite as Art's Analytics property (shared; this page shows up as /fresh-flower-bar/). A Google Analytics measurement ID for this client's invitations; empty = no tracking
   // Interest-list Google Form (filled in once Sarah says yes)
   interest: { action: "", name: "", email: "", seats: "" },
   form: { action: "", name: "", attending: "", dinner: "" }
@@ -524,6 +524,26 @@ $("cal-google").href = "https://calendar.google.com/calendar/render?action=TEMPL
   + (EVENT.address ? "&location=" + encodeURIComponent(EVENT.address) : "")
   + "&details=" + encodeURIComponent(EVENT.details.replace(/<br>/g, " "));
 // ---- calendar credit + Apple (.ics) file ----
+(function () {
+  const CREDIT = "Invitation by Invite as Art · https://1294962213sh.github.io/invites/?ref=calendar";
+  const plain = EVENT.details.replace(/<br>/g, " ").replace(/<[^>]+>/g, "");
+  const g = $("cal-google");
+  g.href = g.href.replace(/&details=[^&]*/, "") + "&details=" + encodeURIComponent(plain + "\n\n" + CREDIT);
+  const ics = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+  const utc = (d) => new Date(d).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const loc = (s) => String(s).slice(0, 19).replace(/[-:]/g, "");
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Invite as Art//EN", "BEGIN:VEVENT",
+    "UID:" + EVENT.title.replace(/\W+/g, "-").toLowerCase() + "@inviteasart",
+    "DTSTAMP:" + utc(new Date()), "DTSTART;TZID=" + EVENT.tz + ":" + loc(EVENT.start), "DTEND;TZID=" + EVENT.tz + ":" + loc(EVENT.end),
+    "SUMMARY:" + ics(EVENT.title), EVENT.address ? "LOCATION:" + ics(EVENT.address) : "",
+    "DESCRIPTION:" + ics(plain + "\n\n" + CREDIT), "URL:" + location.origin + location.pathname,
+    "END:VEVENT", "END:VCALENDAR"].filter(Boolean);
+  const a = $("cal-ics");
+  a.href = "data:text/calendar;charset=utf-8," + encodeURIComponent(lines.join("\r\n"));
+  a.download = EVENT.title.replace(/\W+/g, "-").toLowerCase() + ".ics";
+})();
+
+// ---- Apple / Outlook calendar file, built from EVENT (so it always matches the page) ----
 (function () {
   const CREDIT = "Invitation by Invite as Art · https://1294962213sh.github.io/invites/?ref=calendar";
   const plain = EVENT.details.replace(/<br>/g, " ").replace(/<[^>]+>/g, "");
@@ -827,7 +847,9 @@ $("again").onclick = () => {
 (function () {
   const $ = id => document.getElementById(id);
   let track = function () {};
-  if (EVENT.analyticsId) {
+  let me = false;   // same opt-out as the storefront: open once with ?me=1 and this browser is never counted
+  try { const q = new URLSearchParams(location.search); if (q.get("me") === "1") localStorage.setItem("iaa_me", "1"); if (q.get("me") === "0") localStorage.removeItem("iaa_me"); me = localStorage.getItem("iaa_me") === "1"; } catch (e) {}
+  if (EVENT.analyticsId && !me) {
     const s = document.createElement("script"); s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + EVENT.analyticsId; document.head.appendChild(s);
     window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); }
     gtag("js", new Date()); gtag("config", EVENT.analyticsId, { page_title: EVENT.title });

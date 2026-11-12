@@ -547,7 +547,7 @@ ev_new = '''const EVENT = {
   ],
   hint: "Seats are limited · questions? Call or text (203) 800-3830",
   preview: true,                      // design preview: the interest form doesn't save anything
-  analyticsId: "",                    // a Google Analytics measurement ID for this client's invitations; empty = no tracking
+  analyticsId: "G-YLN4RCBGCY",        // Invite as Art's Analytics property (shared; this page shows up as /fresh-flower-bar/). A Google Analytics measurement ID for this client's invitations; empty = no tracking
   // Interest-list Google Form (filled in once Sarah says yes)
   interest: { action: "", name: "", email: "", seats: "" },
   form: { action: "", name: "", attending: "", dinner: "" }
@@ -559,7 +559,9 @@ js = '''<script>
 (function () {
   const $ = id => document.getElementById(id);
   let track = function () {};
-  if (EVENT.analyticsId) {
+  let me = false;   // same opt-out as the storefront: open once with ?me=1 and this browser is never counted
+  try { const q = new URLSearchParams(location.search); if (q.get("me") === "1") localStorage.setItem("iaa_me", "1"); if (q.get("me") === "0") localStorage.removeItem("iaa_me"); me = localStorage.getItem("iaa_me") === "1"; } catch (e) {}
+  if (EVENT.analyticsId && !me) {
     const s = document.createElement("script"); s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + EVENT.analyticsId; document.head.appendChild(s);
     window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); }
     gtag("js", new Date()); gtag("config", EVENT.analyticsId, { page_title: EVENT.title });
