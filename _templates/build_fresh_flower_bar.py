@@ -166,6 +166,50 @@ def vine(x0, y0, ang, L, t0, target=None):
             col = random.choice(["#8FA98F", "#A6BBA3", "#7E9A86", "#B8C9B2"])
             target.append(f'<g class="pt" style="transform-origin:{f(x)}px {f(y)}px;animation-delay:{t0+.4+i*.09:.2f}s"><ellipse cx="{f(ex)}" cy="{f(ey)}" rx="{f(rr)}" ry="{f(rr*.82)}" fill="{col}" stroke="#4C6B45" stroke-width=".3" stroke-opacity=".5"/><ellipse cx="{f(ex-rr*.3)}" cy="{f(ey-rr*.3)}" rx="{f(rr*.4)}" ry="{f(rr*.25)}" fill="#FFFFFF" fill-opacity=".28"/></g>')
 
+def berries(x0, y0, ang, L, t0, target=None):
+    """Winterberry: a dark twig with a cluster of glossy red berries that pop in."""
+    target = art if target is None else target
+    x1, y1 = x0 + math.cos(math.radians(ang)) * L, y0 + math.sin(math.radians(ang)) * L
+    target.append(f'<path class="stem" style="animation-delay:{t0:.2f}s" d="M{f(x0)} {f(y0)} Q{f((x0+x1)/2 + 4)} {f((y0+y1)/2)} {f(x1)} {f(y1)}" fill="none" stroke="#4A2E24" stroke-width=".9" stroke-linecap="round"/>')
+    for i in range(9):
+        t = .45 + .55 * (i / 8)
+        bx = x0 + (x1 - x0) * t + random.uniform(-4.5, 4.5); by = y0 + (y1 - y0) * t + random.uniform(-4.5, 4.5)
+        r = random.uniform(1.6, 2.3); col = random.choice(["#B81F2E", "#C92C38", "#A4192A"])
+        target.append(f'<g class="pt" style="transform-origin:{f(bx)}px {f(by)}px;animation-delay:{t0+.4+i*.07:.2f}s">'
+                      f'<path d="M{f(bx)} {f(by)} L{f(x0+(x1-x0)*t)} {f(y0+(y1-y0)*t)}" stroke="#4A2E24" stroke-width=".5"/>'
+                      f'<circle cx="{f(bx)}" cy="{f(by)}" r="{f(r)}" fill="{col}"/><circle cx="{f(bx+r*.3)}" cy="{f(by+r*.35)}" r="{f(r*.8)}" fill="#6E0F1C" fill-opacity=".35"/>'
+                      f'<circle cx="{f(bx-r*.35)}" cy="{f(by-r*.4)}" r="{f(r*.32)}" fill="#FFE8E0" fill-opacity=".85"/></g>')
+
+
+def pine(x, y, ang, L, t0, target=None):
+    """A sprig of pine: a twig with soft needle pairs, grows out from the bouquet."""
+    target = art if target is None else target
+    ca, sa = math.cos(math.radians(ang)), math.sin(math.radians(ang))
+    x1, y1 = x + ca * L, y + sa * L
+    needles = []
+    for i in range(1, 13):
+        t = i / 12; px, py = x + ca * L * t, y + sa * L * t
+        nl = 5.5 * (1 - t * .55)
+        for side in (-1, 1):
+            a = ang + side * (38 + random.uniform(-6, 6))
+            needles.append(f'<path d="M{f(px)} {f(py)} L{f(px+math.cos(math.radians(a))*nl)} {f(py+math.sin(math.radians(a))*nl)}" stroke="{random.choice(["#2F4A35","#3B5A40","#27402E"])}" stroke-width=".8" stroke-linecap="round"/>')
+    target.append(f'<g class="lf" style="transform-origin:{f(x)}px {f(y)}px;animation-delay:{t0:.2f}s"><path d="M{f(x)} {f(y)} L{f(x1)} {f(y1)}" stroke="#4A3A2A" stroke-width=".9" stroke-linecap="round"/>' + ''.join(needles) + '</g>')
+
+
+def bauble(x, y, r, t0, target=None):
+    """A small gold ornament on a pick, tucked into the bouquet; it catches the light now and then."""
+    target = art if target is None else target
+    target.append(f'<g class="pt" style="transform-origin:{f(x)}px {f(y)}px;animation-delay:{t0:.2f}s">'
+                  f'<path d="M{f(x)} {f(y-r)} L{f(x)} {f(y-r-7)}" stroke="#8C7A66" stroke-width=".6"/>'
+                  f'<circle cx="{f(x)}" cy="{f(y)}" r="{f(r)}" fill="url(#g-bauble)"/>'
+                  f'<rect x="{f(x-1.3)}" y="{f(y-r-1.6)}" width="2.6" height="2" rx=".5" fill="#C9A24A"/>'
+                  f'<ellipse cx="{f(x-r*.35)}" cy="{f(y-r*.4)}" rx="{f(r*.3)}" ry="{f(r*.2)}" fill="#FFF8DC" fill-opacity=".85" transform="rotate(-30 {f(x-r*.35)} {f(y-r*.4)})"/>'
+                  f'<path class="gleam" d="M{f(x-r*.1)} {f(y-r*.2)} l1.2 0 l.35 1.2 l.35 -1.2 l1.2 0 l-1 -.75 l.4 -1.2 l-.95 .75 l-.95 -.75 l.4 1.2 Z" fill="#FFFBEA" style="transform-origin:{f(x+.7)}px {f(y-r*.2)}px;animation-delay:{random.uniform(0,5):.1f}s"/></g>')
+
+
+defs.append('<radialGradient id="g-bauble" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#FFF1BF"/><stop offset=".35" stop-color="#E2B95C"/><stop offset=".8" stop-color="#9E7322"/><stop offset="1" stop-color="#6B4C12"/></radialGradient>')
+defs.append('<radialGradient id="g-bulb" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFF6D9"/><stop offset=".35" stop-color="#FFE9A8" stop-opacity=".9"/><stop offset="1" stop-color="#FFD98A" stop-opacity="0"/></radialGradient>')
+
 # ------------------------------------------------------------------ compose the bouquet (viewBox 0 0 320 250; ledge at y=196; vase mouth 160,150)
 VX, VY = 160, 150
 # stems first (drawn at ~0.2s)
@@ -179,6 +223,8 @@ for (x, y, ang, L, w) in [(146, 144, 205, 40, .42), (174, 142, -25, 42, .42), (1
 spray(150, 140, 232, 64, .6)
 spray(172, 138, -58, 60, .7)
 spray(156, 136, 272, 48, .8, col="#9FB0DA", n=5)
+# holiday greenery behind: pine sprigs fanning out
+pine(152, 142, 215, 58, .7); pine(170, 140, -40, 56, .8); pine(160, 136, 262, 44, .9); pine(146, 144, 190, 40, 1.0); pine(176, 142, -8, 42, 1.0)
 # back blooms
 flower(168, 30, 12, "coral", "anemone", t0=1.6, tilt=-10)
 tulip(108, 44, 22, -118, t0=1.7)
@@ -197,6 +243,9 @@ flower(204, 124, 16, "oldrose", "rose", t0=3.1, tilt=25)
 flower(162, 124, 25, "crimson", "rose", t0=3.0, squash=.92)
 flower(138, 136, 10, "ivory", "rose", t0=4.2, tilt=30)   # opens last
 spray(156, 138, 300, 34, 3.2, n=4)
+# winterberry sprigs and two gold ornaments tucked in
+berries(154, 138, 255, 54, 3.0); berries(168, 136, -70, 50, 3.2); berries(146, 140, 200, 36, 3.4)
+bauble(134, 66, 5.2, 3.6); bauble(190, 110, 4.6, 3.8)
 vine(150, 146, 150, 62, 2.6)
 vine(170, 146, 30, 58, 2.8)
 vine(142, 142, 125, 40, 3.0)
@@ -211,7 +260,20 @@ vase = ('<g class="vase">'
         '<path d="M172 156 Q176 170 173 184" stroke="#FFFFFF" stroke-width="1.2" stroke-opacity=".18" stroke-linecap="round"/>'
         '<ellipse cx="160" cy="150" rx="16" ry="3.2" fill="#DCE3D6" fill-opacity=".35" stroke="#8FA38E" stroke-width=".6" stroke-opacity=".7"/>'
         '<path d="M146 191 Q160 196 174 191" stroke="#6D7F6A" stroke-width=".8" fill="none" stroke-opacity=".6"/>'
+        '<path d="M139 166 Q160 171 181 166 L180.5 169.5 Q160 174.5 139.5 169.5 Z" fill="#C9A24A" fill-opacity=".9"/>'
+        '<path d="M141 167.6 Q160 172 179 167.6" stroke="#FFF1BF" stroke-width=".5" fill="none" stroke-opacity=".8"/>'
         '</g>')
+# glamour: gold sparkles twinkling over the bouquet, and a string of warm little lights across the top
+sparkles = ''.join(
+    f'<path class="spark" d="M{f(x)} {f(y-s)} Q{f(x)} {f(y)} {f(x+s)} {f(y)} Q{f(x)} {f(y)} {f(x)} {f(y+s)} Q{f(x)} {f(y)} {f(x-s)} {f(y)} Q{f(x)} {f(y)} {f(x)} {f(y-s)} Z" fill="#FFF3C4" stroke="#E2B95C" stroke-width=".3" style="transform-origin:{f(x)}px {f(y)}px;animation-delay:{random.uniform(4,14):.1f}s;animation-duration:{random.uniform(2.4,4.6):.1f}s"/>'
+    for x, y, s in [(random.uniform(60, 262), random.uniform(14, 160), random.uniform(1.8, 4.2)) for _ in range(22)])
+lights = ['<path d="M-4 4 Q80 28 160 21 Q240 28 324 4" fill="none" stroke="#4A3A2A" stroke-width=".7" stroke-opacity=".8"/>']
+for i in range(11):
+    t = (i + .5) / 11; lx = -4 + 328 * t
+    ly = 4 + (21 - 4) * (1 - (2 * t - 1) ** 2) + 2 * math.sin(t * 6.28)  # sags along the wire
+    lights.append(f'<g class="bulb" style="animation-delay:{random.uniform(0,3):.1f}s;animation-duration:{random.uniform(2,3.6):.1f}s"><circle cx="{f(lx)}" cy="{f(ly+4)}" r="7" fill="url(#g-bulb)" opacity=".8"/>'
+                  f'<rect x="{f(lx-1)}" y="{f(ly)}" width="2" height="2.2" fill="#6B5A48"/><ellipse cx="{f(lx)}" cy="{f(ly+4.2)}" rx="1.7" ry="2.3" fill="#FFF1BF"/></g>')
+lights = '<g class="lights">' + ''.join(lights) + '</g>'
 ledge = ('<rect x="0" y="194" width="320" height="34" fill="url(#g-ledge)"/>'
          '<path d="M0 194 H320" stroke="#FFF8EA" stroke-width="1.2" stroke-opacity=".7"/>'
          '<path d="M0 195.5 H320" stroke="#8C7A66" stroke-width=".6" stroke-opacity=".5"/>')
@@ -280,9 +342,9 @@ still = ('<svg class="still" viewBox="0 0 320 228" aria-hidden="true">'
          '</defs>'
          '<rect width="320" height="228" fill="url(#g-wall)"/>'
          '<rect class="lightpool" width="320" height="228" fill="url(#g-light)"/>'
-         + ledge + motes +
+         + ledge + lights + motes +
          '<g class="bouquet" style="transform-origin:160px 192px"><g transform="translate(160 150) scale(1.14) translate(-160 -150)">' + bouquet + '</g></g>'
-         + vase + wine + coupe + dish + fallen + butterfly +
+         + vase + wine + coupe + dish + fallen + butterfly + sparkles +
          '<rect width="320" height="228" filter="url(#grain)" opacity=".08" style="mix-blend-mode:multiply"/>'
          '</svg>')
 
@@ -328,6 +390,7 @@ css = '''
   h1 span { font-size: .34em; letter-spacing: .24em; margin-top: 12px; color: var(--gold); font-weight: 500; }
   .when { white-space: nowrap; font-size: clamp(16px, 4.7vw, 21px) !important; }
   .petals { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .petals i { position: absolute; top: -8px; width: 5px; height: 5px; background: radial-gradient(circle, #FFF6D0 0%, #E2B95C 55%, rgba(226,185,92,0) 72%); clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); opacity: 0; }
   .petals b { position: absolute; top: -14px; width: 10px; height: 7px; border-radius: 80% 0 80% 0; background: var(--c); opacity: 0; box-shadow: inset 0 0 2px rgba(80,30,30,.15); }
   .book { text-align: center; }
   .book h2 { margin-bottom: 8px; }
@@ -364,6 +427,12 @@ css = '''
     .wing { animation: flutter .42s ease-in-out infinite alternate; }
     .wl { animation-direction: alternate-reverse; }
     .petals b { animation: petalfall linear infinite; }
+    .petals i { animation: glitterfall linear infinite, twinkle var(--tw, 1.2s) ease-in-out infinite alternate; }
+    .spark { opacity: 0; transform-box: view-box; animation-name: sparkle; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+    .bulb { animation-name: bulb; animation-timing-function: ease-in-out; animation-iteration-count: infinite; animation-direction: alternate; }
+    .gleam { opacity: 0; transform-box: view-box; animation: sparkle 3.6s ease-in-out infinite; }
+    .orn::before, .orn::after { background: linear-gradient(90deg, var(--gold-dim), var(--gold), #F3DEA3, var(--gold), var(--gold-dim)); background-size: 200% 100%; animation: goldshimmer 6s linear infinite; }
+    .orn svg { animation: ornspin 8s ease-in-out infinite; }
     .book .btn { position: relative; overflow: hidden; }
     .book .btn::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 40%, rgba(255,240,200,.35) 50%, transparent 60%); background-size: 260% 100%; animation: sweep 6s ease-in-out 2s infinite; }
   }
@@ -380,6 +449,12 @@ css = '''
   @keyframes flight { 0% { opacity: 0; transform: translate(330px, 30px) rotate(-20deg) } 6% { opacity: 1 } 18% { transform: translate(236px, 58px) rotate(-10deg) } 30% { transform: translate(150px, 34px) rotate(8deg) } 40% { transform: translate(104px, 62px) rotate(-6deg) } 42%,70% { transform: translate(104px, 64px) rotate(0deg); opacity: 1 } 84% { transform: translate(40px, 20px) rotate(14deg); opacity: 1 } 92% { opacity: 0; transform: translate(-30px, -10px) rotate(18deg) } 100% { opacity: 0; transform: translate(330px, 30px) } }
   @keyframes hover { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-1.5px) } }
   @keyframes flutter { from { transform: scaleX(1) } to { transform: scaleX(.3) } }
+  @keyframes glitterfall { 0% { transform: translate(0,0) rotate(0); opacity: 0 } 6% { opacity: 1 } 50% { transform: translate(var(--dx), 300px) rotate(180deg) } 90% { opacity: .8 } 100% { transform: translate(calc(var(--dx) * -.5), 600px) rotate(360deg); opacity: 0 } }
+  @keyframes twinkle { from { filter: brightness(.8) } to { filter: brightness(1.6) } }
+  @keyframes sparkle { 0%, 100% { opacity: 0; transform: scale(.2) rotate(0deg) } 50% { opacity: 1; transform: scale(1) rotate(45deg) } }
+  @keyframes bulb { from { opacity: .55 } to { opacity: 1 } }
+  @keyframes ornspin { 0%,100% { transform: rotate(0) scale(1) } 50% { transform: rotate(180deg) scale(1.25) } }
+  @keyframes goldshimmer { from { background-position: 200% 0 } to { background-position: -200% 0 } }
   @keyframes petalfall { 0% { transform: translate(0,0) rotate(0); opacity: 0 } 8% { opacity: .9 } 30% { transform: translate(calc(var(--dx) * .6), 170px) rotate(120deg) } 55% { transform: translate(calc(var(--dx) * -.3), 320px) rotate(220deg) } 85% { opacity: .75 } 100% { transform: translate(var(--dx), 560px) rotate(360deg); opacity: 0 } }
 '''
 h = h.replace('</style>\n</head>', css + '</style>\n</head>', 1)
@@ -389,7 +464,8 @@ h = re.sub(r'\s*<!-- Corner art.*?<!-- Sparkles -->', '\n      ', h, count=1, fl
 h = re.sub(r'\s*<svg class="art sparkle.*?</svg>(?=\s*\n)', '', h, flags=re.S)
 h = re.sub(r'\s*<svg class="glass".*?</svg>', '\n      ' + still, h, count=1, flags=re.S)
 h = re.sub(r'\s*<svg class="tea strip".*?</svg>', '', h, count=1, flags=re.S)
-petals = ''.join(f'<b style="left:{random.uniform(2,98):.1f}%;--dx:{random.uniform(-40,40):.0f}px;--c:{random.choice(["#EAB0AE","#F4D6CA","#F6EBD9","#D47A86","#EC8A6C"])};animation-duration:{random.uniform(10,17):.1f}s;animation-delay:{random.uniform(4,18):.1f}s"></b>' for _ in range(12))
+petals = ''.join(f'<b style="left:{random.uniform(2,98):.1f}%;--dx:{random.uniform(-50,50):.0f}px;--c:{random.choice(["#EAB0AE","#F4D6CA","#F6EBD9","#D47A86","#EC8A6C","#B8232F","#FFFBF2","#C9A24A"])};transform:scale({random.uniform(.7,1.25):.2f});animation-duration:{random.uniform(9,16):.1f}s;animation-delay:{random.uniform(3,16):.1f}s"></b>' for _ in range(26))
+petals += ''.join(f'<i style="left:{random.uniform(1,99):.1f}%;--dx:{random.uniform(-30,30):.0f}px;animation-duration:{random.uniform(11,19):.1f}s;animation-delay:{random.uniform(2,20):.1f}s;--tw:{random.uniform(.9,1.8):.1f}s"></i>' for _ in range(34))
 h = h.replace('<div class="frame">', '<div class="frame">\n      <div class="petals" aria-hidden="true">' + petals + '</div>', 1)
 assert 'class="still"' in h and 'class="art corner' not in h
 
