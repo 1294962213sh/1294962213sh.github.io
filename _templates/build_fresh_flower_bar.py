@@ -401,10 +401,13 @@ css = '''
   .incl li::before { content: "\\2726"; color: var(--gold); font-size: 10px; margin-top: 4px; }
   .book .btn { display: block; text-decoration: none; text-align: center; }
   .book .hint { margin-top: 12px; }
+  .thanks .promo { margin: 16px 0 0; font-size: 12.5px; letter-spacing: .03em; }
+  .thanks .promo a { color: var(--gold); text-decoration: none; border-bottom: 1px solid var(--gold-dim); padding-bottom: 1px; }
   .book .field { text-align: left; }
   input[type="email"] { width: 100%; font: 17px var(--body); color: var(--ink); padding: 12px 14px; border: 1px solid var(--gold); border-radius: 4px; background: #fff; }
   #form-view, #thanks-view { display: none !important; }
-  .rsvp .bloom { width: 86px; height: 70px; opacity: .9; right: 4px; bottom: auto; top: 4px; }
+  .rsvp .bloom { width: 86px; height: 70px; opacity: .85; right: 4px; bottom: auto; top: 4px; z-index: 0; pointer-events: none; }
+  .thanks h2, .book h2 { position: relative; z-index: 1; }
   @media (min-width: 900px) {
     body { padding: 28px 24px; }
     .wrap { max-width: 720px; gap: 20px; }
@@ -472,6 +475,9 @@ css = '''
   @keyframes petalfall { 0% { transform: translate(0,0) rotate(0); opacity: 0 } 8% { opacity: .9 } 30% { transform: translate(calc(var(--dx) * .6), 170px) rotate(120deg) } 55% { transform: translate(calc(var(--dx) * -.3), 320px) rotate(220deg) } 85% { opacity: .75 } 100% { transform: translate(var(--dx), 560px) rotate(360deg); opacity: 0 } }
 '''
 h = h.replace('</style>\n</head>', css + '</style>\n</head>', 1)
+CAL_JS = '\n// ---- calendar credit + Apple (.ics) file ----\n(function () {\n  const CREDIT = "Invitation by Invite as Art · https://1294962213sh.github.io/invites/?ref=calendar";\n  const plain = EVENT.details.replace(/<br>/g, " ").replace(/<[^>]+>/g, "");\n  const g = $("cal-google");\n  g.href = g.href.replace(/&details=[^&]*/, "") + "&details=" + encodeURIComponent(plain + "\\n\\n" + CREDIT);\n  const ics = (s) => String(s).replace(/\\\\/g, "\\\\\\\\").replace(/;/g, "\\\\;").replace(/,/g, "\\\\,").replace(/\\n/g, "\\\\n");\n  const utc = (d) => new Date(d).toISOString().replace(/[-:]/g, "").replace(/\\.\\d{3}/, "");\n  const loc = (s) => String(s).slice(0, 19).replace(/[-:]/g, "");\n  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Invite as Art//EN", "BEGIN:VEVENT",\n    "UID:" + EVENT.title.replace(/\\W+/g, "-").toLowerCase() + "@inviteasart",\n    "DTSTAMP:" + utc(new Date()), "DTSTART;TZID=" + EVENT.tz + ":" + loc(EVENT.start), "DTEND;TZID=" + EVENT.tz + ":" + loc(EVENT.end),\n    "SUMMARY:" + ics(EVENT.title), EVENT.address ? "LOCATION:" + ics(EVENT.address) : "",\n    "DESCRIPTION:" + ics(plain + "\\n\\n" + CREDIT), "URL:" + location.origin + location.pathname,\n    "END:VEVENT", "END:VCALENDAR"].filter(Boolean);\n  const a = $("cal-ics");\n  a.href = "data:text/calendar;charset=utf-8," + encodeURIComponent(lines.join("\\r\\n"));\n  a.download = EVENT.title.replace(/\\W+/g, "-").toLowerCase() + ".ics";\n})();\n'
+h = h.replace('+ "&details=" + encodeURIComponent(EVENT.details.replace(/<br>/g, " "));', '+ "&details=" + encodeURIComponent(EVENT.details.replace(/<br>/g, " "));' + CAL_JS, 1)
+assert 'cal-ics' in h and 'BEGIN:VCALENDAR' in h
 
 # remove the sample's corner boughs and sparkles and strip; put the still life at the top of the frame
 h = re.sub(r'\s*<!-- Corner art.*?<!-- Sparkles -->', '\n      ', h, count=1, flags=re.S)
@@ -497,7 +503,7 @@ book = '''<div id="book-view" class="book">
         <button class="btn" type="submit" id="i-send">Save me a seat</button>
         <p class="err" id="i-err" hidden></p>
       </form>
-      <div id="i-thanks" class="thanks" hidden><h2>You're on the list</h2><p id="i-thanks-p"></p></div>
+      <div id="i-thanks" class="thanks" hidden><h2>You're on the list</h2><p id="i-thanks-p"></p><p class="promo"><a href="https://1294962213sh.github.io/invites/?ref=thanks" target="_blank" rel="noopener">Hosting something this season? Invitations by Invite as Art &rarr;</a></p></div>
       <p class="hint" id="book-hint"></p>
     </div>
     '''
@@ -507,7 +513,7 @@ h = re.sub(r'<svg class="bloom".*?</svg>', mini_svg, h, count=1, flags=re.S)
 h = h.replace('<p class="foot">With love, from Mara &amp; Theo</p>', '<p class="foot">Fresh Flower Bar · Fairfield, Connecticut</p>')
 h = h.replace('invites/?ref=sample', 'invites/?ref=guest')
 h = re.sub(r'<title>.*?</title>', '<title>Holiday Flower Arranging Class · Fresh Flower Bar</title>', h, count=1)
-desc = "Learn the art of floral design: a holiday flower arranging class at Fresh Flower Bar, Fairfield CT. Wednesday, December 16 · 7–9pm. Champagne or wine and a charcuterie board for every guest."
+desc = "Learn the art of floral design: a holiday flower arranging class at Fresh Flower Bar, Fairfield CT. Wednesday, December 16 · 7–9pm. Champagne or wine and a charcuterie board for every guest. · Invitation by Invite as Art"
 h = re.sub(r'<meta name="description" content="[^"]*">', f'<meta name="description" content="{desc}">', h, count=1)
 h = re.sub(r'<meta property="og:description" content="[^"]*">', f'<meta property="og:description" content="{desc}">', h, count=1)
 h = re.sub(r'<meta property="og:title" content="[^"]*">', '<meta property="og:title" content="Holiday Flower Arranging Class · December 16">', h, count=1)

@@ -10,7 +10,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#E7DCCB">
-<meta name="description" content="Learn the art of floral design: a holiday flower arranging class at Fresh Flower Bar, Fairfield CT. Wednesday, December 16 · 7–9pm. Champagne or wine and a charcuterie board for every guest.">
+<meta name="description" content="Learn the art of floral design: a holiday flower arranging class at Fresh Flower Bar, Fairfield CT. Wednesday, December 16 · 7–9pm. Champagne or wine and a charcuterie board for every guest. · Invitation by Invite as Art">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Invitations">
 <meta property="og:image" content="https://1294962213sh.github.io/fresh-flower-bar/preview.jpg">
@@ -21,7 +21,7 @@
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Holiday Flower Arranging Class · Fresh Flower Bar</title>
 <meta property="og:title" content="Holiday Flower Arranging Class · December 16">
-<meta property="og:description" content="Learn the art of floral design: a holiday flower arranging class at Fresh Flower Bar, Fairfield CT. Wednesday, December 16 · 7–9pm. Champagne or wine and a charcuterie board for every guest.">
+<meta property="og:description" content="Learn the art of floral design: a holiday flower arranging class at Fresh Flower Bar, Fairfield CT. Wednesday, December 16 · 7–9pm. Champagne or wine and a charcuterie board for every guest. · Invitation by Invite as Art">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@400;500&display=swap">
 <style>
   /* Layout: one invitation card on a deep burgundy ground; RSVP below on cream paper. Sample: a holiday party. */
@@ -276,10 +276,13 @@
   .incl li::before { content: "\2726"; color: var(--gold); font-size: 10px; margin-top: 4px; }
   .book .btn { display: block; text-decoration: none; text-align: center; }
   .book .hint { margin-top: 12px; }
+  .thanks .promo { margin: 16px 0 0; font-size: 12.5px; letter-spacing: .03em; }
+  .thanks .promo a { color: var(--gold); text-decoration: none; border-bottom: 1px solid var(--gold-dim); padding-bottom: 1px; }
   .book .field { text-align: left; }
   input[type="email"] { width: 100%; font: 17px var(--body); color: var(--ink); padding: 12px 14px; border: 1px solid var(--gold); border-radius: 4px; background: #fff; }
   #form-view, #thanks-view { display: none !important; }
-  .rsvp .bloom { width: 86px; height: 70px; opacity: .9; right: 4px; bottom: auto; top: 4px; }
+  .rsvp .bloom { width: 86px; height: 70px; opacity: .85; right: 4px; bottom: auto; top: 4px; z-index: 0; pointer-events: none; }
+  .thanks h2, .book h2 { position: relative; z-index: 1; }
   @media (min-width: 900px) {
     body { padding: 28px 24px; }
     .wrap { max-width: 720px; gap: 20px; }
@@ -397,7 +400,7 @@
         <button class="btn" type="submit" id="i-send">Save me a seat</button>
         <p class="err" id="i-err" hidden></p>
       </form>
-      <div id="i-thanks" class="thanks" hidden><h2>You're on the list</h2><p id="i-thanks-p"></p></div>
+      <div id="i-thanks" class="thanks" hidden><h2>You're on the list</h2><p id="i-thanks-p"></p><p class="promo"><a href="https://1294962213sh.github.io/invites/?ref=thanks" target="_blank" rel="noopener">Hosting something this season? Invitations by Invite as Art &rarr;</a></p></div>
       <p class="hint" id="book-hint"></p>
     </div>
     <div id="form-view">
@@ -520,6 +523,26 @@ $("cal-google").href = "https://calendar.google.com/calendar/render?action=TEMPL
   + "&ctz=" + encodeURIComponent(EVENT.tz)
   + (EVENT.address ? "&location=" + encodeURIComponent(EVENT.address) : "")
   + "&details=" + encodeURIComponent(EVENT.details.replace(/<br>/g, " "));
+// ---- calendar credit + Apple (.ics) file ----
+(function () {
+  const CREDIT = "Invitation by Invite as Art · https://1294962213sh.github.io/invites/?ref=calendar";
+  const plain = EVENT.details.replace(/<br>/g, " ").replace(/<[^>]+>/g, "");
+  const g = $("cal-google");
+  g.href = g.href.replace(/&details=[^&]*/, "") + "&details=" + encodeURIComponent(plain + "\n\n" + CREDIT);
+  const ics = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+  const utc = (d) => new Date(d).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const loc = (s) => String(s).slice(0, 19).replace(/[-:]/g, "");
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Invite as Art//EN", "BEGIN:VEVENT",
+    "UID:" + EVENT.title.replace(/\W+/g, "-").toLowerCase() + "@inviteasart",
+    "DTSTAMP:" + utc(new Date()), "DTSTART;TZID=" + EVENT.tz + ":" + loc(EVENT.start), "DTEND;TZID=" + EVENT.tz + ":" + loc(EVENT.end),
+    "SUMMARY:" + ics(EVENT.title), EVENT.address ? "LOCATION:" + ics(EVENT.address) : "",
+    "DESCRIPTION:" + ics(plain + "\n\n" + CREDIT), "URL:" + location.origin + location.pathname,
+    "END:VEVENT", "END:VCALENDAR"].filter(Boolean);
+  const a = $("cal-ics");
+  a.href = "data:text/calendar;charset=utf-8," + encodeURIComponent(lines.join("\r\n"));
+  a.download = EVENT.title.replace(/\W+/g, "-").toLowerCase() + ".ics";
+})();
+
 
 const POLL = !!(EVENT.poll && EVENT.poll.active);
 const store = "rsvp:" + EVENT.title + (POLL ? ":poll" : "");

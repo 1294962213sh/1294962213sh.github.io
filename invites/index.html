@@ -217,7 +217,7 @@
   var s = document.createElement("script"); s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + ID; document.head.appendChild(s);
   window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } window.gtag = gtag;
   gtag("js", new Date());
-  var ref = q.get("ref"), medium = { venue: "email", pin: "pinterest", tt: "tiktok", ig: "instagram", etsy: "etsy", guest: "invitation", sample: "invitation", gads: "cpc" }[ref];
+  var ref = q.get("ref"), medium = { venue: "email", pin: "pinterest", tt: "tiktok", ig: "instagram", etsy: "etsy", guest: "invitation", sample: "invitation", thanks: "invitation", calendar: "invitation", share: "invitation", gads: "cpc" }[ref];
   var source = ref === "gads" ? "google" : ref, campaign = ref === "gads" ? "holiday-test" : "invite-test";
   var cfg = {};
   if (ref && !q.get("utm_source")) {   // turn the short link's ?ref= tag into standard campaign tags Analytics reads
