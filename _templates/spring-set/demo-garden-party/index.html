@@ -467,6 +467,26 @@ $("cal-google").href = "https://calendar.google.com/calendar/render?action=TEMPL
   + "&ctz=" + encodeURIComponent(EVENT.tz)
   + (EVENT.address ? "&location=" + encodeURIComponent(EVENT.address) : "")
   + "&details=" + encodeURIComponent(EVENT.details.replace(/<br>/g, " "));
+// ---- Apple / Outlook calendar file, built from EVENT (so it always matches the page) ----
+(function () {
+  const CREDIT = "Invitation by Invite as Art · https://1294962213sh.github.io/invites/?ref=calendar";
+  const plain = EVENT.details.replace(/<br>/g, " ").replace(/<[^>]+>/g, "");
+  const g = $("cal-google");
+  g.href = g.href.replace(/&details=[^&]*/, "") + "&details=" + encodeURIComponent(plain + "\n\n" + CREDIT);
+  const ics = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+  const utc = (d) => new Date(d).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const loc = (s) => String(s).slice(0, 19).replace(/[-:]/g, "");
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Invite as Art//EN", "BEGIN:VEVENT",
+    "UID:" + EVENT.title.replace(/\W+/g, "-").toLowerCase() + "@inviteasart",
+    "DTSTAMP:" + utc(new Date()), "DTSTART;TZID=" + EVENT.tz + ":" + loc(EVENT.start), "DTEND;TZID=" + EVENT.tz + ":" + loc(EVENT.end),
+    "SUMMARY:" + ics(EVENT.title), EVENT.address ? "LOCATION:" + ics(EVENT.address) : "",
+    "DESCRIPTION:" + ics(plain + "\n\n" + CREDIT), "URL:" + location.origin + location.pathname,
+    "END:VEVENT", "END:VCALENDAR"].filter(Boolean);
+  const a = $("cal-ics");
+  a.href = "data:text/calendar;charset=utf-8," + encodeURIComponent(lines.join("\r\n"));
+  a.download = EVENT.title.replace(/\W+/g, "-").toLowerCase() + ".ics";
+})();
+
 
 const POLL = !!(EVENT.poll && EVENT.poll.active);
 const store = "rsvp:" + EVENT.title + (POLL ? ":poll" : "");
