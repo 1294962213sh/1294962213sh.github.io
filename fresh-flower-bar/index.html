@@ -280,7 +280,17 @@
   input[type="email"] { width: 100%; font: 17px var(--body); color: var(--ink); padding: 12px 14px; border: 1px solid var(--gold); border-radius: 4px; background: #fff; }
   #form-view, #thanks-view { display: none !important; }
   .rsvp .bloom { width: 86px; height: 70px; opacity: .9; right: 4px; bottom: auto; top: 4px; }
-  @media (min-width: 900px) { .wrap { max-width: 520px; } .frame { padding-left: 28px; padding-right: 28px; } .still { width: calc(100% + 56px); margin-left: -28px; margin-right: -28px; } }
+  @media (min-width: 900px) {
+    body { padding: 28px 24px; }
+    .wrap { max-width: 1020px; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+    .invite { position: sticky; top: 24px; }
+    .frame { padding-left: 28px; padding-right: 28px; padding-bottom: 30px; }
+    .still { width: calc(100% + 56px); margin-left: -28px; margin-right: -28px; }
+    h1 { font-size: 44px; }
+    .rsvp { padding: 30px 32px 28px; }
+    .foot, .credit { grid-column: 1 / -1; }
+    .foot { margin-top: -4px; }
+  }
   .rsvp { color-scheme: light; }
   .btn:hover { background: #3F5240; }
   @media (prefers-reduced-motion: no-preference) {
