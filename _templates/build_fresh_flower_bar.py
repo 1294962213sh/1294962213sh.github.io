@@ -1,261 +1,334 @@
-"""Build fresh-flower-bar/index.html from the holiday sample (demo/index.html).
-Light ivory card in Fresh Flower Bar's sage + gold, a painted still life (holiday arrangement,
-champagne coupe with rising bubbles, charcuterie board), falling gold glitter, and a booking panel
-that starts as an interest list and switches to their booking page when EVENT.bookUrl is set."""
+"""Fresh Flower Bar preview, v2: an Old Master-style floral still life on a light parchment ground.
+Blooms open from buds (petal by petal), leaves grow, a butterfly visits, champagne fills, dust drifts in the light.
+Built from demo/index.html (the holiday sample). Output: fresh-flower-bar/index.html (+ preview.jpg made separately)."""
 import math, random, re, pathlib
 
-random.seed(7)
+random.seed(23)
 REPO = pathlib.Path('/home/claude/1294962213sh.github.io')
 src = (REPO / 'demo/index.html').read_text()
 
-def f(x): return f"{x:.1f}"
+def f(x): return f"{x:.2f}"
 
-# ---------------------------------------------------------------- hero still life
-out = []
-delay = [0.3]
-def nd(step=0.035):
-    delay[0] += step
-    return f"{delay[0]:.2f}s"
+# ------------------------------------------------------------------ palettes (base → mid → edge), lit and shaded variants
+PAL = {
+  "peony":   dict(lit=("#E9B9AE", "#F4D6CA", "#FBEDE4"), shd=("#C98E88", "#E3B6AC", "#F1D6CB"), heart="#D9937F", st="#C7867E"),
+  "oldrose": dict(lit=("#D98B8E", "#EAB0AE", "#F5D2CC"), shd=("#B5686E", "#D08F90", "#E8B7B3"), heart="#A4505C", st="#B8707A"),
+  "crimson": dict(lit=("#8E2F42", "#B94D5B", "#D47A86"), shd=("#5E1C2C", "#8E2F42", "#B94D5B"), heart="#4A1522", st="#6E2436"),
+  "ivory":   dict(lit=("#E9D6BE", "#F6EBD9", "#FFFBF2"), shd=("#CDB69A", "#E6D4BB", "#F5EAD8"), heart="#D9B98E", st="#CDB69A"),
+  "coral":   dict(lit=("#D4654A", "#EC8A6C", "#F7B9A2"), shd=("#AD4A35", "#D4654A", "#EC8A6C"), heart="#8E3322", st="#B4503C"),
+  "gold":    dict(lit=("#D3A646", "#E9C76A", "#F6E3A8"), shd=("#B38A34", "#D3A646", "#E9C76A"), heart="#8F6A20", st="#B38A34"),
+  "leaf":    dict(lit=("#2F4B33", "#4C6B45", "#7E9A66"), shd=("#1F3324", "#2F4B33", "#4C6B45")),
+}
+# petal silhouettes, unit length (tip at 0,-1), width ~1
+PETAL = {
+  "round":  "M0 0 C-.62 -.16 -.6 -.74 -.2 -.98 Q0 -1.08 .2 -.98 C.6 -.74 .62 -.16 0 0 Z",
+  "notch":  "M0 0 C-.64 -.16 -.62 -.72 -.3 -.93 Q-.14 -1.03 0 -.95 Q.14 -1.03 .3 -.93 C.62 -.72 .64 -.16 0 0 Z",
+  "ruffle": "M0 0 C-.66 -.14 -.66 -.6 -.42 -.84 Q-.34 -.98 -.22 -.9 Q-.1 -1.04 0 -.94 Q.1 -1.04 .22 -.9 Q.34 -.98 .42 -.84 C.66 -.6 .66 -.14 0 0 Z",
+  "tulip":  "M0 0 C-.5 -.08 -.56 -.74 -.36 -.98 L-.12 -.86 L0 -1.04 L.12 -.86 L.36 -.98 C.56 -.74 .5 -.08 0 0 Z",
+  "leaf":   "M0 0 C-.38 -.28 -.46 -.72 0 -1 C.46 -.72 .38 -.28 0 0 Z",
+}
+defs = []
+for name, p in PAL.items():
+    for side in ("lit", "shd"):
+        a, b, c = p[side]
+        defs.append(f'<linearGradient id="g-{name}-{side}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="-1"><stop offset="0" stop-color="{a}"/><stop offset=".5" stop-color="{b}"/><stop offset="1" stop-color="{c}"/></linearGradient>')
+defs.append('<radialGradient id="g-cup" gradientUnits="userSpaceOnUse" cx="0" cy="0" r=".62"><stop offset="0" stop-color="#3A1E22" stop-opacity=".42"/><stop offset=".45" stop-color="#3A1E22" stop-opacity=".14"/><stop offset="1" stop-color="#3A1E22" stop-opacity="0"/></radialGradient>')
+defs.append('<radialGradient id="g-hollow" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1"><stop offset="0" stop-color="#2A1418" stop-opacity=".55"/><stop offset=".55" stop-color="#2A1418" stop-opacity=".2"/><stop offset="1" stop-color="#2A1418" stop-opacity="0"/></radialGradient>')
+for k, d in PETAL.items():
+    defs.append(f'<path id="p-{k}" d="{d}"/>')
 
-IDENT = (lambda x, y: (x, y), False)
+LIGHT_ANGLE = -125  # light from upper-left (SVG y down)
+def lit(angle):
+    d = (angle - LIGHT_ANGLE + 180) % 360 - 180
+    return abs(d) < 95
 
-def bloom(cx, cy, r, tones, center, kind="rose", target=None, M=IDENT, t0=None):
-    """A flower that opens: bud, then inner petals, then outer petals unfurl; then it breathes."""
-    target = out if target is None else target
-    mp, flip = M
-    cx, cy = mp(cx, cy)
-    d = t0 if t0 is not None else delay[0]
-    delay[0] = max(delay[0], d) + 0.16
-    o = f"transform-origin:{f(cx)}px {f(cy)}px"
-    g = [f'<g class="breathe" style="{o};animation-delay:-{random.uniform(0,5):.1f}s">']
-    g.append(f'<circle class="wash" style="{o};animation-delay:{d:.2f}s" cx="{f(cx)}" cy="{f(cy)}" r="{f(r*1.05)}" fill="{tones[0]}" fill-opacity=".55" filter="url(#hb2)"/>')
-    rings = [(r*0.62, 9, r*0.55, r*0.36, tones[1], .72), (r*0.36, 7, r*0.42, r*0.28, tones[2], .8)]
-    if kind == "ranunculus":
-        rings = [(r*0.6, 11, r*0.5, r*0.3, tones[1], .75), (r*0.42, 9, r*0.4, r*0.25, tones[2], .8), (r*0.22, 6, r*0.28, r*0.18, tones[3], .85)]
-    nring = len(rings)
-    for i, (dist, n, rx, ry, col, op) in enumerate(rings):
-        ring_delay = d + 0.18 + (nring - 1 - i) * 0.22      # inner rings open first, outer last
-        g.append(f'<g class="ring" style="{o};animation-delay:{ring_delay:.2f}s">')
+art = []     # bouquet layer (inside sway group)
+t_bloom = [0.0]
+
+def jitter_petal(shape, j=.07):
+    """A unique, slightly irregular petal path (unit length), so no two petals are alike."""
+    r = lambda k=1: random.uniform(-j, j) * k
+    if shape == "ruffle":
+        return (f"M0 0 C{-.66+r()} {-.14+r()} {-.66+r()} {-.6+r()} {-.42+r()} {-.84+r()} Q{-.34+r()} {-.98+r()} {-.22+r()} {-.9+r()} "
+                f"Q{-.1+r()} {-1.04+r()} 0 {-.94+r()} Q{.1+r()} {-1.04+r()} {.22+r()} {-.9+r()} Q{.34+r()} {-.98+r()} {.42+r()} {-.84+r()} C{.66+r()} {-.6+r()} {.66+r()} {-.14+r()} 0 0 Z")
+    if shape == "notch":
+        return (f"M0 0 C{-.64+r()} {-.16+r()} {-.62+r()} {-.72+r()} {-.3+r()} {-.93+r()} Q{-.14+r()} {-1.03+r()} 0 {-.95+r()} "
+                f"Q{.14+r()} {-1.03+r()} {.3+r()} {-.93+r()} C{.62+r()} {-.72+r()} {.64+r()} {-.16+r()} 0 0 Z")
+    return (f"M0 0 C{-.62+r()} {-.16+r()} {-.6+r()} {-.74+r()} {-.2+r()} {-.98+r()} Q0 {-1.08+r()} {.2+r()} {-.98+r()} C{.6+r()} {-.74+r()} {.62+r()} {-.16+r()} 0 0 Z")
+
+TIP = "M-.3 -.9 Q0 -1.02 .3 -.9"   # the lit edge along a petal's tip (local coords)
+
+def flower(cx, cy, r, pal, kind="rose", t0=1.0, squash=.9, tilt=0, target=None):
+    """A bloom that opens from a bud. kind: rose | peony | anemone | ranunculus. Local frame: flower center at 0,0."""
+    target = art if target is None else target
+    P = PAL[pal]
+    g = [f'<g class="breathe" style="transform-origin:{f(cx)}px {f(cy)}px;animation-delay:-{random.uniform(0,7):.1f}s">',
+         f'<g transform="translate({f(cx)} {f(cy)}) rotate({tilt}) scale(1 {squash})">']
+    g.append(f'<ellipse class="bshadow" style="animation-delay:{t0+.6:.2f}s" cx="{f(r*.14)}" cy="{f(r*.2)}" rx="{f(r*1.0)}" ry="{f(r*.88)}" fill="#3A2A1E" fill-opacity=".25" filter="url(#blur3)"/>')
+    # rings: (radius factor, count, length factor, width factor, shape) — wide petals that overlap
+    if kind == "rose":
+        rings = [(1.0, 7, .82, 1.1, "notch"), (.74, 6, .66, 1.05, "notch"), (.5, 5, .52, .95, "round"), (.3, 5, .38, .85, "round")]
+    elif kind == "peony":
+        rings = [(1.0, 8, .84, 1.0, "ruffle"), (.82, 8, .7, .95, "ruffle"), (.64, 7, .56, .9, "ruffle"), (.46, 7, .44, .85, "ruffle"), (.28, 6, .32, .75, "round")]
+    elif kind == "anemone":
+        rings = [(1.0, 7, .9, 1.15, "round"), (.84, 6, .76, 1.05, "round")]
+    elif kind == "ranunculus":
+        rings = [(1.0, 9, .64, .95, "round"), (.82, 9, .52, .9, "round"), (.64, 8, .42, .85, "round"), (.46, 7, .32, .8, "round"), (.3, 6, .24, .7, "round")]
+    nr = len(rings)
+    for ri, (rf, n, lf, wf, shape) in enumerate(rings):
+        ring_delay = t0 + (nr - 1 - ri) * 0.28           # innermost first
         off = random.uniform(0, 360)
         for k in range(n):
-            a = off + k * 360 / n + random.uniform(-8, 8)
-            px = cx + dist * math.cos(math.radians(a)); py = cy + dist * math.sin(math.radians(a)) * 0.92
-            g.append(f'<ellipse cx="{f(px)}" cy="{f(py)}" rx="{f(rx*random.uniform(.85,1.1))}" ry="{f(ry*random.uniform(.85,1.1))}" fill="{col}" fill-opacity="{op:.2f}" transform="rotate({a+90:.0f} {f(px)} {f(py)})"/>')
-        g.append('</g>')
-    g.append(f'<circle class="bud" style="{o};animation-delay:{d:.2f}s" cx="{f(cx)}" cy="{f(cy)}" r="{f(r*0.18)}" fill="{center}" fill-opacity=".85"/>')
-    hx, hy = cx - r*.35, cy - r*.4
-    g.append(f'<ellipse class="ring" style="{o};animation-delay:{d+0.6:.2f}s" cx="{f(hx)}" cy="{f(hy)}" rx="{f(r*.22)}" ry="{f(r*.1)}" fill="#FFFDF6" fill-opacity=".55" transform="rotate(-30 {f(hx)} {f(hy)})"/>')
-    g.append('</g>')
+            a = off + k * 360 / n + random.uniform(-10, 10)
+            rr = r * rf * random.uniform(.94, 1.06)
+            L = rr * lf; base = rr - L
+            bx, by = base * math.cos(math.radians(a)), base * math.sin(math.radians(a))
+            w = L * wf * random.uniform(.9, 1.1)
+            side = "lit" if lit(a) else "shd"
+            pd = ring_delay + random.uniform(0, .22)
+            rot0 = random.uniform(-45, 45)
+            tf = f'translate({f(bx)} {f(by)}) rotate({a+90+random.uniform(-6,6):.1f}) scale({f(w)} {f(L)})'
+            d = jitter_petal(shape)
+            g.append(f'<g class="pt" style="transform-origin:0px 0px;animation-delay:{pd:.2f}s;--r:{rot0:.0f}deg">'
+                     f'<path d="{d}" transform="{tf}" fill="url(#g-{pal}-{side})" stroke="{P["st"]}" stroke-width=".3" vector-effect="non-scaling-stroke" stroke-opacity=".5"/>'
+                     f'<path d="{d}" transform="{tf}" fill="url(#g-cup)"/>')
+            if side == "lit" and ri < 2:
+                g.append(f'<path d="{TIP}" transform="{tf}" fill="none" stroke="#FFFDF7" stroke-width=".8" vector-effect="non-scaling-stroke" stroke-opacity=".5" stroke-linecap="round"/>')
+            g.append('</g>')
+        if ri == nr - 2:   # the cup's shadow, under the innermost petals
+            g.append(f'<circle class="pt" style="transform-origin:0px 0px;animation-delay:{ring_delay:.2f}s" r="{f(r*.46)}" fill="url(#g-hollow)"/>')
+    # heart
+    if kind == "anemone":
+        g.append(f'<g class="pt" style="transform-origin:0px 0px;animation-delay:{t0:.2f}s"><circle r="{f(r*.3)}" fill="#2B1B24"/>' + ''.join(f'<circle cx="{f(r*.3*math.cos(math.radians(a)))}" cy="{f(r*.3*math.sin(math.radians(a)))}" r="{f(r*.045)}" fill="#5A3B4A"/>' for a in range(0, 360, 24)) + '</g>')
+    else:
+        for i in range(5):   # curled heart
+            a = i * 72 + 20
+            g.append(f'<g class="pt" style="transform-origin:0px 0px;animation-delay:{t0 - .1 + i*.04:.2f}s;--r:{-60+i*10}deg"><path d="{jitter_petal("round")}" transform="translate({f(r*.08*math.cos(math.radians(a)))} {f(r*.08*math.sin(math.radians(a)))}) rotate({a+140}) scale({f(r*.16)} {f(r*.22)})" fill="{P["heart"]}" fill-opacity=".95"/></g>')
+    bud_col = P["shd"][1]
+    g.append(f'<g class="bud" style="transform-origin:0px 0px;--d0:{t0-.55:.2f}s;--d1:{t0+.35:.2f}s">'
+             f'<ellipse cx="0" cy="{f(-r*.05)}" rx="{f(r*.3)}" ry="{f(r*.42)}" fill="{bud_col}"/>'
+             f'<path d="M{f(-r*.3)} {f(r*.1)} Q0 {f(-r*.7)} {f(r*.3)} {f(r*.1)}" fill="{P["lit"][2]}" fill-opacity=".6"/>'
+             + ''.join(f'<use href="#p-round" transform="rotate({a}) scale({f(r*.22)} {f(r*.5)})" fill="#4C6B45" fill-opacity=".95"/>' for a in (150, 180, 210)) + '</g>')
+    g.append('</g></g>')
     target.append(''.join(g))
 
-def sprig(x0, y0, ang, length, col, leaf="needle", sway=True, n=None, target=None, M=IDENT, t0=None):
-    target = out if target is None else target
-    mp, flip = M
-    n = n or int(length / 4)
-    pts = []
-    for k in range(n + 1):
-        t = k / n
-        a = math.radians(ang + 18 * math.sin(t * 2.2))
-        pts.append((x0 + math.cos(a) * length * t, y0 + math.sin(a) * length * t))
-    P = [mp(x, y) for x, y in pts]
-    bx, by = P[0]
-    d = t0 if t0 is not None else delay[0]
-    g = [f'<g class="{"sway" if sway else ""}" style="transform-origin:{f(bx)}px {f(by)}px;animation-delay:-{random.uniform(0,4):.1f}s">']
-    g.append(f'<path class="stem" style="animation-delay:{d:.2f}s" d="M' + " L".join(f"{f(x)} {f(y)}" for x, y in P) + f'" stroke="{col[0]}" stroke-width=".8" fill="none" stroke-linecap="round"/>')
-    for k, (x, y) in enumerate(pts[1:], 1):
-        t = k / n
-        a = ang + 18 * math.sin(t * 2.2)
-        leaves = []
+def tulip(cx, cy, size, ang, t0, flames=True, target=None):
+    """A striped tulip cup pointing along ang (deg), opening from a tight bud."""
+    target = art if target is None else target
+    g = [f'<g class="breathe" style="transform-origin:{f(cx)}px {f(cy)}px;animation-delay:-{random.uniform(0,7):.1f}s"><g transform="translate({f(cx)} {f(cy)}) rotate({ang+90})">']
+    for i, (dx, w, side, d) in enumerate([(-.22, .52, "shd", .5), (.22, .52, "lit", .5), (0, .62, "lit", 0)]):
+        g.append(f'<g class="pt" style="transform-origin:0px 0px;animation-delay:{t0+d:.2f}s;--r:{dx*40:.0f}deg">'
+                 f'<use href="#p-tulip" transform="translate({f(dx*size)} 0) rotate({dx*28:.0f}) scale({f(size*w)} {f(size)})" fill="url(#g-coral-{side})" stroke="#9C3A2C" stroke-width=".35" vector-effect="non-scaling-stroke" stroke-opacity=".6"/>')
+        if flames:  # ivory feathering
+            g.append(f'<path d="M{f(dx*size)} 0 q{f(size*.08)} {f(-size*.3)} 0 {f(-size*.55)} q{f(-size*.06)} {f(-size*.2)} {f(size*.04)} {f(-size*.4)}" fill="none" stroke="#F6E6D4" stroke-width="{f(size*.11)}" stroke-opacity=".8" stroke-linecap="round" transform="rotate({dx*28:.0f} {f(dx*size)} 0)"/>')
+        g.append('</g>')
+    g.append(f'<g class="bud" style="transform-origin:0px 0px;--d0:{t0-.5:.2f}s;--d1:{t0+.3:.2f}s"><use href="#p-tulip" transform="scale({f(size*.42)} {f(size*.9)})" fill="#4C6B45"/></g>')
+    g.append('</g></g>')
+    target.append(''.join(g))
+
+def leaf(x, y, ang, L, t0, w=.4, target=None):
+    target = art if target is None else target
+    side = "lit" if lit(ang) else "shd"
+    j = lambda: random.uniform(-.06, .06)
+    d = f"M0 0 C{-.42+j()} {-.22+j()} {-.5+j()} {-.62+j()} {-.08+j()} {-.98} L0 -1.04 L{.08+j()} {-.98} C{.5+j()} {-.62+j()} {.42+j()} {-.22+j()} 0 0 Z"
+    tf = f'translate({f(x)} {f(y)}) rotate({ang+90:.1f}) scale({f(L*w)} {f(L)})'
+    target.append(f'<g class="lf" style="transform-origin:{f(x)}px {f(y)}px;animation-delay:{t0:.2f}s">'
+                  f'<path d="{d}" transform="{tf}" fill="url(#g-leaf-{side})" stroke="#1B2C20" stroke-width=".3" vector-effect="non-scaling-stroke" stroke-opacity=".55"/>'
+                  f'<path d="M0 0 C-.42 -.22 -.5 -.62 -.08 -.98 L0 -1.04 L0 0 Z" transform="{tf}" fill="#0F1C14" fill-opacity="{.18 if side=="lit" else .3}"/>'
+                  f'<path d="M0 -.04 L0 -.96" transform="{tf}" fill="none" stroke="#B9C9A0" stroke-width=".5" vector-effect="non-scaling-stroke" stroke-opacity=".55"/></g>')
+
+def stem(x0, y0, x1, y1, t0, bend=10, target=None, col="#3B4D36", wdt=1.2):
+    target = art if target is None else target
+    mx, my = (x0 + x1) / 2 + bend, (y0 + y1) / 2
+    target.append(f'<path class="stem" style="animation-delay:{t0:.2f}s" d="M{f(x0)} {f(y0)} Q{f(mx)} {f(my)} {f(x1)} {f(y1)}" fill="none" stroke="{col}" stroke-width="{wdt}" stroke-linecap="round"/>')
+
+def spray(x0, y0, ang, L, t0, col="#FFFDF6", n=6, target=None):
+    """A thin arching stem with tiny white/blue florets that pop along it."""
+    target = art if target is None else target
+    pts = [(x0 + math.cos(math.radians(ang + 25*t)) * L * t, y0 + math.sin(math.radians(ang + 25*t)) * L * t) for t in [i/n for i in range(n+1)]]
+    target.append(f'<path class="stem" style="animation-delay:{t0:.2f}s" d="M' + ' L'.join(f'{f(x)} {f(y)}' for x, y in pts) + '" fill="none" stroke="#4C6B45" stroke-width=".7" stroke-linecap="round"/>')
+    for i, (x, y) in enumerate(pts[1:], 1):
+        target.append(f'<g class="pt" style="transform-origin:{f(x)}px {f(y)}px;animation-delay:{t0+.5+i*.08:.2f}s">' + ''.join(
+            f'<ellipse cx="{f(x+math.cos(math.radians(a))*1.6)}" cy="{f(y+math.sin(math.radians(a))*1.6)}" rx="1.5" ry=".9" fill="{col}" fill-opacity=".95" transform="rotate({a} {f(x+math.cos(math.radians(a))*1.6)} {f(y+math.sin(math.radians(a))*1.6)})"/>' for a in range(0, 360, 72)) + f'<circle cx="{f(x)}" cy="{f(y)}" r=".6" fill="#E9C76A"/></g>')
+
+
+def vine(x0, y0, ang, L, t0, target=None):
+    """A trailing eucalyptus sprig: curved stem with pairs of round leaves that pop along it."""
+    target = art if target is None else target
+    n = 9
+    pts = [(x0 + math.cos(math.radians(ang + 30*t)) * L * t, y0 + math.sin(math.radians(ang + 30*t)) * L * t) for t in [i/n for i in range(n+1)]]
+    target.append(f'<path class="stem" style="animation-delay:{t0:.2f}s" d="M' + ' L'.join(f'{f(x)} {f(y)}' for x, y in pts) + '" fill="none" stroke="#56705A" stroke-width=".9" stroke-linecap="round"/>')
+    for i, (x, y) in enumerate(pts[1:], 1):
+        t = i / n; a = ang + 30 * t
         for side in (-1, 1):
-            if leaf == "needle":
-                la = a + side * 55; L = 5.5 * (1 - t * 0.55)
-                ex = x + math.cos(math.radians(la)) * L / 2; ey = y + math.sin(math.radians(la)) * L / 2
-                leaves.append(('e', ex, ey, L/2, .9, la))
-            elif leaf == "euc" and k % 2 == 0:
-                la = a + side * 70; L = 4.2 * (1 - t * 0.35)
-                leaves.append(('c', x + math.cos(math.radians(la)) * L * .8, y + math.sin(math.radians(la)) * L * .8, L*.75, 0, 0))
-            elif leaf == "leaf" and k % 2 == 1:
-                la = a + side * 40; L = 8 * (1 - t * 0.4)
-                ex = x + math.cos(math.radians(la)) * L / 2; ey = y + math.sin(math.radians(la)) * L / 2
-                leaves.append(('e', ex, ey, L/2, L/4.5, la))
-        if not leaves: continue
-        mx, my = mp(x, y)
-        g.append(f'<g class="leaf" style="transform-origin:{f(mx)}px {f(my)}px;animation-delay:{d + t*0.9:.2f}s">')
-        for typ, ex, ey, rx, ry, la in leaves:
-            ex, ey = mp(ex, ey); la = -la if flip else la
-            col_ = random.choice(col[1:])
-            if typ == 'e':
-                g.append(f'<ellipse cx="{f(ex)}" cy="{f(ey)}" rx="{f(rx)}" ry="{f(ry)}" fill="{col_}" fill-opacity=".85" transform="rotate({la:.0f} {f(ex)} {f(ey)})"/>')
-            else:
-                g.append(f'<circle cx="{f(ex)}" cy="{f(ey)}" r="{f(rx)}" fill="{col_}" fill-opacity=".8"/>')
-        g.append('</g>')
-    g.append('</g>')
-    target.append(''.join(g))
+            la = a + side * 75; rr = 4.6 * (1 - t * .35)
+            ex, ey = x + math.cos(math.radians(la)) * rr * .9, y + math.sin(math.radians(la)) * rr * .9
+            col = random.choice(["#8FA98F", "#A6BBA3", "#7E9A86", "#B8C9B2"])
+            target.append(f'<g class="pt" style="transform-origin:{f(x)}px {f(y)}px;animation-delay:{t0+.4+i*.09:.2f}s"><ellipse cx="{f(ex)}" cy="{f(ey)}" rx="{f(rr)}" ry="{f(rr*.82)}" fill="{col}" stroke="#4C6B45" stroke-width=".3" stroke-opacity=".5"/><ellipse cx="{f(ex-rr*.3)}" cy="{f(ey-rr*.3)}" rx="{f(rr*.4)}" ry="{f(rr*.25)}" fill="#FFFFFF" fill-opacity=".28"/></g>')
 
-def berries(cx, cy, n=5, col="#B23A48", target=None, M=IDENT, t0=None):
-    target = out if target is None else target
-    mp, flip = M
-    cx, cy = mp(cx, cy)
-    d = t0 if t0 is not None else delay[0] + 0.4
-    g = [f'<g class="pop" style="animation-delay:{d:.2f}s;transform-origin:{f(cx)}px {f(cy)}px">']
-    for k in range(n):
-        x = cx + random.uniform(-5, 5); y = cy + random.uniform(-4, 4)
-        g.append(f'<circle cx="{f(x)}" cy="{f(y)}" r="{random.uniform(1.6,2.3):.1f}" fill="{col}"/><circle cx="{f(x-.6)}" cy="{f(y-.6)}" r=".55" fill="#FFF4E6" fill-opacity=".8"/>')
-    g.append('</g>')
-    target.append(''.join(g))
+# ------------------------------------------------------------------ compose the bouquet (viewBox 0 0 320 250; ledge at y=196; vase mouth 160,150)
+VX, VY = 160, 150
+# stems first (drawn at ~0.2s)
+for (x1, y1, bend) in [(116, 96, -8), (196, 86, 10), (162, 124, 0), (150, 70, 2), (108, 44, -14), (226, 112, 16), (168, 30, 6), (100, 132, -14), (212, 46, 12), (84, 80, -18), (240, 70, 18), (138, 136, -4), (204, 124, 8)]:
+    stem(VX + random.uniform(-6, 6), VY, x1, y1, 0.15 + random.uniform(0, .3), bend)
+# back leaves
+for (x, y, ang, L, w) in [(146, 144, 205, 40, .42), (174, 142, -25, 42, .42), (152, 146, 240, 30, .4), (168, 146, -62, 30, .4),
+                          (112, 120, 185, 30, .4), (212, 108, 0, 32, .4), (130, 62, 225, 24, .36), (194, 46, -45, 26, .36),
+                          (96, 104, 160, 24, .4), (232, 92, 20, 26, .4), (176, 56, -80, 22, .34), (140, 48, 255, 22, .34), (160, 142, 95, 18, .5)]:
+    leaf(x, y, ang, L, 0.5 + random.uniform(0, .5), w)
+spray(150, 140, 232, 64, .6)
+spray(172, 138, -58, 60, .7)
+spray(156, 136, 272, 48, .8, col="#9FB0DA", n=5)
+# back blooms
+flower(168, 30, 12, "coral", "anemone", t0=1.6, tilt=-10)
+tulip(108, 44, 22, -118, t0=1.7)
+flower(212, 46, 13, "crimson", "rose", t0=2.3, tilt=15)
+flower(240, 70, 10, "gold", "ranunculus", t0=2.6)
+flower(84, 80, 11, "gold", "ranunculus", t0=2.7)
+flower(150, 70, 21, "ivory", "rose", t0=1.9)
+# mid leaves tucked between blooms
+for (x, y, ang, L, w) in [(134, 104, 200, 22, .38), (186, 100, -10, 22, .38), (160, 108, 260, 16, .36), (120, 122, 150, 20, .38), (214, 118, 10, 20, .38)]:
+    leaf(x, y, ang, L, 1.2 + random.uniform(0, .4), w)
+flower(196, 86, 28, "oldrose", "rose", t0=2.1)
+flower(116, 96, 33, "peony", "peony", t0=2.4, squash=.88)
+tulip(226, 112, 20, 62, t0=2.8)
+flower(100, 132, 14, "crimson", "rose", t0=2.9, tilt=-20)
+flower(204, 124, 16, "oldrose", "rose", t0=3.1, tilt=25)
+flower(162, 124, 25, "crimson", "rose", t0=3.0, squash=.92)
+flower(138, 136, 10, "ivory", "rose", t0=4.2, tilt=30)   # opens last
+spray(156, 138, 300, 34, 3.2, n=4)
+vine(150, 146, 150, 62, 2.6)
+vine(170, 146, 30, 58, 2.8)
+vine(142, 142, 125, 40, 3.0)
 
-PINE = ["#3F5F48", "#4C6B55", "#5E7D63", "#2F4A3A"]
-EUC = ["#7E9A86", "#9DB4A2", "#B5C7B4", "#8DA893"]
-LEAF = ["#5B7A5E", "#6F8F6E", "#88A383"]
-BLUSH = ["#F0C7BD", "#E9A9A0", "#D98A84", "#C86E6E"]
-PEACH = ["#F7D3B5", "#F2B48E", "#E8976E", "#D9785A"]
-IVORY = ["#FBF2E6", "#F5E6D5", "#EBD3C0", "#E2C1AD"]
-WINE = ["#C7707C", "#A84458", "#8E2F45", "#6E2034"]
+bouquet = ''.join(art)
 
-# arrangement: greenery grows out first, then the blooms open one after another
-S = 1.22                                   # arrangement scale around its base
-def AX(x, y): return (130 + (x - 130) * S, 104 + (y - 104) * S)
-AM = (AX, False)
-for (x0, y0, ang, L, col, lf) in [(130, 88, 200, 62, PINE, "needle"), (130, 88, -15, 58, PINE, "needle"), (128, 84, 230, 50, EUC, "euc"),
-                                 (132, 84, -45, 46, EUC, "euc"), (130, 80, 255, 44, PINE, "needle"), (130, 80, 285, 40, EUC, "euc"),
-                                 (126, 92, 165, 52, LEAF, "leaf"), (134, 92, 12, 50, LEAF, "leaf"), (128, 95, 150, 44, EUC, "euc"), (132, 95, 30, 40, PINE, "needle")]:
-    sprig(x0, y0, ang, L, col, lf, M=AM, t0=0.25 + random.uniform(0, .5))
-delay[0] = 0.9
-for (cx, cy, r, pal, cen, kind) in [
-    (130, 84, 17, PEACH, "#B65F45", "ranunculus"), (118, 66, 15, IVORY, "#C9A27A", "rose"), (142, 62, 16, BLUSH, "#B5545E", "rose"),
-    (104, 84, 13, BLUSH, "#B5545E", "rose"), (157, 82, 13, IVORY, "#C9A27A", "ranunculus"), (130, 46, 11, PEACH, "#B65F45", "rose"),
-    (112, 47, 9, WINE, "#4E1525", "rose"), (150, 44, 9, IVORY, "#C9A27A", "rose"),
-    (92, 70, 9, WINE, "#4E1525", "ranunculus"), (168, 66, 9, PEACH, "#B65F45", "rose"),
-]:
-    bloom(cx, cy, r, pal, cen, kind, M=AM)
-for (bx, by) in [(100, 58), (161, 52), (122, 100), (146, 101), (84, 88), (176, 86), (136, 32)]:
-    berries(bx, by, M=AM)
-
-# floral corner sprays (replace the sample's pine boughs): one spray, mapped into each corner
-def corner_svg(cls, W, flipx, flipy):
-    parts = []
-    mp = lambda x, y: ((W - x) if flipx else x, (W - y) if flipy else y)
-    M = (mp, flipx != flipy)
-    base = 0.2 if not flipy else 1.2
-    sprig(2, 4, 8, 78, EUC, "euc", target=parts, M=M, t0=base)
-    sprig(4, 2, 80, 74, PINE, "needle", target=parts, M=M, t0=base + .1)
-    sprig(6, 6, 40, 60, LEAF, "leaf", target=parts, M=M, t0=base + .2)
-    sprig(3, 8, 22, 52, PINE, "needle", target=parts, M=M, t0=base + .15)
-    bloom(22, 20, 12, BLUSH, "#B5545E", "rose", target=parts, M=M, t0=base + .5)
-    bloom(40, 12, 8, IVORY, "#C9A27A", "ranunculus", target=parts, M=M, t0=base + .75)
-    bloom(12, 40, 8, PEACH, "#B65F45", "rose", target=parts, M=M, t0=base + .9)
-    berries(52, 26, target=parts, M=M, t0=base + 1.2)
-    berries(26, 50, 4, target=parts, M=M, t0=base + 1.3)
-    return f'<svg class="art corner {cls}" viewBox="0 0 {W} {W}" aria-hidden="true">' + ''.join(parts) + '</svg>'
-CORNERS = (corner_svg("tl", 136, False, False) + "\n" + corner_svg("tr", 136, True, False) + "\n"
-           + corner_svg("bl", 136, False, True) + "\n" + corner_svg("br", 136, True, True))
-
-# compote vase (gold line, faint glaze)
-vase = ('<g class="vase" transform="translate(130 104) scale(1.22) translate(-130 -104)" fill="none" stroke="#B8933E" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">'
-        '<path class="draw" d="M104 100 Q130 122 156 100" fill="#FBF3E4" fill-opacity=".55"/>'
-        '<path class="draw" d="M102 100 H158"/>'
-        '<path class="draw" d="M126 112 Q127 120 124 127 H136 Q133 120 134 112"/>'
-        '<path class="draw" d="M116 130 Q130 125 144 130 Q130 134 116 130 Z" fill="#FBF3E4" fill-opacity=".6"/>'
+# ------------------------------------------------------------------ vase, ledge, champagne, plate, butterfly, motes
+vase = ('<g class="vase">'
+        '<ellipse cx="176" cy="195" rx="36" ry="5" fill="#3A2A1E" fill-opacity=".35" filter="url(#blur3)"/>'
+        '<path d="M144 150 Q136 166 142 180 Q146 190 160 191 Q174 190 178 180 Q184 166 176 150 Z" fill="url(#g-glass)"/>'
+        '<path d="M150 154 Q146 170 150 184" stroke="#FFFFFF" stroke-width="3" stroke-opacity=".32" stroke-linecap="round" filter="url(#blur1)"/>'
+        '<path d="M172 156 Q176 170 173 184" stroke="#FFFFFF" stroke-width="1.2" stroke-opacity=".18" stroke-linecap="round"/>'
+        '<ellipse cx="160" cy="150" rx="16" ry="3.2" fill="#DCE3D6" fill-opacity=".35" stroke="#8FA38E" stroke-width=".6" stroke-opacity=".7"/>'
+        '<path d="M146 191 Q160 196 174 191" stroke="#6D7F6A" stroke-width=".8" fill="none" stroke-opacity=".6"/>'
         '</g>')
+ledge = ('<rect x="0" y="194" width="320" height="34" fill="url(#g-ledge)"/>'
+         '<path d="M0 194 H320" stroke="#FFF8EA" stroke-width="1.2" stroke-opacity=".7"/>'
+         '<path d="M0 195.5 H320" stroke="#8C7A66" stroke-width=".6" stroke-opacity=".5"/>')
+# champagne coupe (left, front)
+bub = ''.join(f'<circle class="bub" cx="{f(random.uniform(48,72))}" cy="{f(random.uniform(166,176))}" r="{random.uniform(.5,1.2):.1f}" fill="#FFFBE8" fill-opacity=".95" style="animation-delay:{random.uniform(0,3.4):.1f}s;animation-duration:{random.uniform(2.2,3.8):.1f}s"/>' for _ in range(12))
+coupe = ('<g class="coupe">'
+         '<ellipse cx="66" cy="195" rx="14" ry="2.4" fill="#3A2A1E" fill-opacity=".25" filter="url(#blur1)"/>'
+         '<defs><clipPath id="cbowl"><path d="M42 152 H78 Q77 174 60 177 Q43 174 42 152 Z"/></clipPath></defs>'
+         '<g clip-path="url(#cbowl)"><g class="cfill" style="transform-origin:60px 177px"><rect x="40" y="157" width="40" height="22" fill="url(#g-champ)"/>'
+         '<path class="fizz" d="M20 157 q6 -2 12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 V161 H20 Z" fill="#FFF6D6" fill-opacity=".9"/></g>' + bub + '</g>'
+         '<path d="M42 152 H78 Q77 174 60 177 Q43 174 42 152 Z" fill="#FFFFFF" fill-opacity=".08" stroke="#B9A98C" stroke-width=".8" stroke-opacity=".8"/>'
+         '<ellipse cx="60" cy="152" rx="18" ry="2.2" fill="none" stroke="#D9CBB0" stroke-width=".6" stroke-opacity=".8"/>'
+         '<path d="M60 177 V191" stroke="#B9A98C" stroke-width="1.6" stroke-opacity=".8"/><path d="M50 193 Q60 189 70 193" stroke="#B9A98C" stroke-width="1" fill="none" stroke-opacity=".8"/>'
+         '<path class="glint" d="M46 155 Q47 165 52 171" stroke="#FFFFFF" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-opacity=".8"/>'
+         '</g>')
+wine = ('<g class="wine">'
+        '<defs><clipPath id="wbowl"><path d="M80 140 Q78 160 92 166 Q106 160 104 140 Q104 128 92 126 Q80 128 80 140 Z"/></clipPath></defs>'
+        '<g clip-path="url(#wbowl)"><g class="cfill" style="transform-origin:92px 166px;animation-delay:1.5s"><rect x="76" y="146" width="32" height="22" fill="url(#g-wine)"/><path class="fizz" d="M56 146 q5 -1.6 10 0 t10 0 t10 0 t10 0 t10 0 t10 0 V150 H56 Z" fill="#9C3346" fill-opacity=".9"/></g></g>'
+        '<path d="M80 140 Q78 160 92 166 Q106 160 104 140 Q104 128 92 126 Q80 128 80 140 Z" fill="#FFFFFF" fill-opacity=".06" stroke="#B9A98C" stroke-width=".8" stroke-opacity=".75"/>'
+        '<path d="M92 166 V189" stroke="#B9A98C" stroke-width="1.5" stroke-opacity=".75"/><path d="M83 191 Q92 187 101 191" stroke="#B9A98C" stroke-width="1" fill="none" stroke-opacity=".75"/>'
+        '<path class="glint" d="M83 134 Q82 146 86 156" stroke="#FFFFFF" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-opacity=".7" style="animation-delay:4.5s"/>'
+        '</g>')
+# a silver dish with figs and grapes (right, front), painted small and quiet
+grapes = ''.join(f'<circle cx="{f(246+(k%4)*3.1+(k//4)*1.5)}" cy="{f(178+(k//4)*2.6)}" r="1.9" fill="{["#4A2E4D","#5E3C62","#3B2440"][k%3]}"/><circle cx="{f(245.4+(k%4)*3.1+(k//4)*1.5)}" cy="{f(177.4+(k//4)*2.6)}" r=".5" fill="#EBD9E8" fill-opacity=".7"/>' for k in range(11))
+dish = ('<g class="dish" transform="translate(262 189) scale(1.28) translate(-262 -189)">'
+        '<ellipse cx="262" cy="193" rx="34" ry="3.5" fill="#3A2A1E" fill-opacity=".28" filter="url(#blur1)"/>'
+        '<ellipse cx="262" cy="189" rx="32" ry="6.5" fill="url(#g-pewter)"/><ellipse cx="262" cy="188" rx="30" ry="5.4" fill="#C9CDCF" fill-opacity=".55"/>'
+        '<path d="M232 188 Q262 181 292 188" stroke="#FFFFFF" stroke-width=".9" fill="none" stroke-opacity=".7"/>'
+        + grapes +
+        '<ellipse cx="272" cy="183" rx="5.2" ry="6" fill="#4B2A47"/><path d="M272 177 q1 -3 0 -5" stroke="#5B7A5E" stroke-width=".9" fill="none"/>'
+        '<ellipse cx="282" cy="185" rx="5" ry="5.6" fill="#5A3356"/><ellipse cx="282" cy="185" rx="3.4" ry="4" fill="#C8667A"/><ellipse cx="282" cy="185" rx="1.8" ry="2.4" fill="#E8A0AE"/>'
+        + ''.join(f'<circle cx="{f(282+math.cos(math.radians(a))*2.6)}" cy="{f(185+math.sin(math.radians(a))*3)}" r=".35" fill="#F7E4D0"/>' for a in range(0,360,40)) +
+        '<path d="M236 186 L250 184 L249 190 Z" fill="#F0E3B8"/><path d="M236 186 L249 190 L248 192 L235 188 Z" fill="#DCCB95"/>'
+        '<path d="M253 190 q6 -3 12 0" stroke="#5B7A5E" stroke-width=".7" fill="none"/>' + ''.join(f'<ellipse cx="{f(254.5+k*2.1)}" cy="{f(189.4-abs(math.sin(k))*.8)}" rx="1.1" ry=".4" fill="#6F8F6E" transform="rotate({-35 if k%2 else 35} {f(254.5+k*2.1)} {f(189.4)})"/>' for k in range(6)) +
+        '</g>')
+# fallen petals on the ledge
+fallen = ('<g class="fallen">'
+          '<use href="#p-notch" transform="translate(112 203) rotate(70) scale(7 9)" fill="url(#g-oldrose-lit)" fill-opacity=".9"/>'
+          '<use href="#p-notch" transform="translate(126 207) rotate(-110) scale(6 8)" fill="url(#g-peony-shd)" fill-opacity=".9"/>'
+          '<use href="#p-round" transform="translate(206 204) rotate(100) scale(5 7)" fill="url(#g-crimson-lit)" fill-opacity=".9"/>'
+          '<ellipse cx="118" cy="207" rx="8" ry="1.6" fill="#3A2A1E" fill-opacity=".15" filter="url(#blur1)"/>'
+          '</g>')
+# butterfly (red admiral, painterly), flies in and rests on the peony
+wing = lambda s: (f'<path d="M0 0 C{s*6} {-s*9} {s*16} {-s*12} {s*18} {-s*4} C{s*17} {s*2} {s*8} {s*6} 0 {s*1} Z" fill="#2E1F1A"/>'
+                  f'<path d="M{s*4} {-s*3} C{s*9} {-s*7} {s*14} {-s*8} {s*16} {-s*5} C{s*14} {-s*2} {s*9} {-s*1} {s*5} {-s*1} Z" fill="#D8552F"/>'
+                  f'<circle cx="{s*13}" cy="{-s*9}" r="{s*.9}" fill="#FFF4E6"/><circle cx="{s*16}" cy="{-s*7.5}" r="{s*.7}" fill="#FFF4E6"/>'
+                  f'<path d="M0 0 C{s*4} {s*5} {s*10} {s*7} {s*12} {s*3}" fill="#3B2824" stroke="none"/>')
+butterfly = ('<g class="bfly"><g class="bflyin">'
+             '<g class="wing wl" style="transform-origin:0px 0px"><g transform="scale(-1 1)">' + wing(1) + '</g></g>'
+             '<g class="wing wr" style="transform-origin:0px 0px">' + wing(1) + '</g>'
+             '<ellipse cx="0" cy="0" rx="1.1" ry="4" fill="#2A1B16"/><path d="M-1 -4 Q-3 -8 -4 -9 M1 -4 Q3 -8 4 -9" stroke="#2A1B16" stroke-width=".5" fill="none"/>'
+             '</g></g>')
+motes = ''.join(f'<circle class="mote" cx="{random.uniform(20,200):.0f}" cy="{random.uniform(10,150):.0f}" r="{random.uniform(.5,1.2):.1f}" fill="#F1D9A0" style="animation-delay:-{random.uniform(0,12):.1f}s;animation-duration:{random.uniform(9,16):.1f}s;--dx:{random.uniform(-10,10):.0f}px;--dy:{random.uniform(-18,-8):.0f}px"/>' for _ in range(14))
 
-# champagne: a pair of coupes, left, clinking; champagne fills, bubbles keep rising, a sparkle burst at the rims
-def coupe(dx, dy, cid, sc=1.0):
-    X = lambda x: 43 + (x - 43) * sc + dx
-    Y = lambda y: 126 + (y - 126) * sc + dy
-    bub = []
-    for k in range(11):
-        x = random.uniform(X(31), X(55)); r = random.uniform(.6, 1.4) * sc
-        bub.append(f'<circle class="bub" cx="{f(x)}" cy="{f(random.uniform(Y(116),Y(124)))}" r="{r:.1f}" fill="#FFF8E1" fill-opacity=".95" style="animation-delay:{random.uniform(0,3.2):.1f}s;animation-duration:{random.uniform(2.0,3.4):.1f}s"/>')
-    bowl = f"M{f(X(26))} {f(Y(104))} H{f(X(60))} Q{f(X(59))} {f(Y(124))} {f(X(43))} {f(Y(126))} Q{f(X(27))} {f(Y(124))} {f(X(26))} {f(Y(104))} Z"
-    return (f'<g class="coupe"><defs><clipPath id="{cid}"><path d="{bowl}"/></clipPath></defs>'
-            f'<g clip-path="url(#{cid})"><g class="cfill" style="transform-origin:{f(X(43))}px {f(Y(126))}px"><rect x="{f(X(22))}" y="{f(Y(108))}" width="{f(44*sc)}" height="{f(22*sc)}" fill="#F1D891" fill-opacity=".8"/>'
-            f'<path class="fizz" d="M{f(X(4))} {f(Y(108))} q6 -2 12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 V{f(Y(112))} H{f(X(4))} Z" fill="#FFF3C9" fill-opacity=".95"/></g>'
-            + ''.join(bub) + '</g>'
-            '<g fill="none" stroke="#B8933E" stroke-width="1.05" stroke-linecap="round">'
-            f'<path class="draw" d="{bowl}"/>'
-            f'<path class="draw" d="M{f(X(43))} {f(Y(126))} V{f(Y(146))}"/><path class="draw" d="M{f(X(34))} {f(Y(148))} Q{f(X(43))} {f(Y(145))} {f(X(52))} {f(Y(148))}"/></g>'
-            f'<path class="glint" d="M{f(X(30))} {f(Y(107))} Q{f(X(31))} {f(Y(116))} {f(X(36))} {f(Y(121))}" stroke="#FFFDF4" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".85"/>'
-            '</g>')
-burst = ''.join(f'<path class="clink" style="animation-delay:{k*0.08:.2f}s" d="M{44+math.cos(math.radians(a))*3:.1f} {112+math.sin(math.radians(a))*3:.1f} L{44+math.cos(math.radians(a))*10:.1f} {112+math.sin(math.radians(a))*10:.1f}" stroke="#D4AF5A" stroke-width=".9" stroke-linecap="round"/>' for k, a in enumerate([-150,-120,-90,-60,-30]))
-coupe_svg = coupe(-14, 8, 'cb1', .82) + coupe(14, 14, 'cb2', .76) + '<g class="clinkg">' + burst + '</g>'
+still = ('<svg class="still" viewBox="0 0 320 228" aria-hidden="true">'
+         '<defs>' + ''.join(defs) +
+         '<filter id="blur3" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3"/></filter>'
+         '<filter id="blur1" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.2"/></filter>'
+         '<filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .3 0 0 0 0 .25 0 0 0 0 .2 0 0 0 .9 0"/></filter>'
+         '<radialGradient id="g-light" cx="30%" cy="22%" r="60%"><stop offset="0" stop-color="#FFF3D2" stop-opacity=".95"/><stop offset=".6" stop-color="#FBEBD2" stop-opacity=".2"/><stop offset="1" stop-color="#E9D7BC" stop-opacity="0"/></radialGradient>'
+         '<linearGradient id="g-wall" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F9F1E3"/><stop offset=".55" stop-color="#EFE1CB"/><stop offset="1" stop-color="#DCC7A8"/></linearGradient>'
+         '<linearGradient id="g-ledge" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C9B59C"/><stop offset=".25" stop-color="#B49F86"/><stop offset="1" stop-color="#8E7A64"/></linearGradient>'
+         '<linearGradient id="g-glass" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5E7461"/><stop offset=".35" stop-color="#2C3E31"/><stop offset=".7" stop-color="#1E2D23"/><stop offset="1" stop-color="#46594A"/></linearGradient>'
+         '<linearGradient id="g-wine" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8E2537"/><stop offset="1" stop-color="#4E0F1E"/></linearGradient><linearGradient id="g-champ" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3DC94"/><stop offset="1" stop-color="#D9B257"/></linearGradient>'
+         '<linearGradient id="g-pewter" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B9BDBF"/><stop offset="1" stop-color="#6E7375"/></linearGradient>'
+         '</defs>'
+         '<rect width="320" height="228" fill="url(#g-wall)"/>'
+         '<rect class="lightpool" width="320" height="228" fill="url(#g-light)"/>'
+         + ledge + motes +
+         '<g class="bouquet" style="transform-origin:160px 192px"><g transform="translate(160 150) scale(1.14) translate(-160 -150)">' + bouquet + '</g></g>'
+         + vase + wine + coupe + dish + fallen + butterfly +
+         '<rect width="320" height="228" filter="url(#grain)" opacity=".08" style="mix-blend-mode:multiply"/>'
+         '</svg>')
 
-# charcuterie board, front right: wood oval with handle, cheese, salami, grapes, crackers, rosemary
-cb = ['<g class="board">',
-      '<g class="pop" style="animation-delay:.25s;transform-origin:205px 146px">',
-      '<ellipse cx="206" cy="146" rx="44" ry="15" fill="#C9A47C"/><ellipse cx="206" cy="144" rx="44" ry="15" fill="#D8B68D"/>',
-      '<path d="M249 141 h14 a3 3 0 0 1 0 6 h-14" fill="#C9A47C"/><circle cx="259" cy="144" r="1.3" fill="#8F6E4B"/>',
-      '<path d="M170 141 Q206 133 242 141" stroke="#BC9670" stroke-width=".7" fill="none" opacity=".7"/>',
-      '<path d="M174 148 Q206 155 238 148" stroke="#BC9670" stroke-width=".7" fill="none" opacity=".6"/></g>']
-items = []
-# cheese wedges
-items.append('<path d="M178 141 L196 136 L194 147 Z" fill="#F2D98C"/><path d="M178 141 L194 147 L192 150 L177 144 Z" fill="#E3C46F"/><circle cx="186" cy="142" r=".8" fill="#E3C46F"/>')
-items.append('<path d="M214 136 L232 139 L222 146 Z" fill="#F7EBC8"/><path d="M222 146 L232 139 L232 142 L222 149 Z" fill="#E8D8A8"/>')
-# salami rounds, fanned
-for k, (x, y) in enumerate([(200, 148), (205, 149.5), (210, 150), (215, 149)]):
-    items.append(f'<ellipse cx="{x}" cy="{y}" rx="4.4" ry="3" fill="#B5475A"/><circle cx="{x-1.4}" cy="{y-.6}" r=".5" fill="#F3D6CF"/><circle cx="{x+1.2}" cy="{y+.5}" r=".45" fill="#F3D6CF"/>')
-# grapes
-for k in range(9):
-    gx = 197 + (k % 3) * 2.6 + (k // 3) * 1.1; gy = 137 + (k // 3) * 2.3
-    items.append(f'<circle cx="{f(gx)}" cy="{f(gy)}" r="1.6" fill="{["#6E3552","#83405F","#5B2A44"][k%3]}"/><circle cx="{f(gx-.5)}" cy="{f(gy-.5)}" r=".4" fill="#F4E3EC" fill-opacity=".7"/>')
-# crackers
-for k in range(3):
-    items.append(f'<rect x="{224+k*3.2}" y="{144+k*.6}" width="7" height="5" rx=".8" fill="#E9C994" stroke="#D2AE73" stroke-width=".4" transform="rotate({-12+k*6} {227+k*3.2} {146+k*.6})"/>')
-# rosemary + a fig
-items.append('<path d="M182 151 Q192 148 202 151" stroke="#5B7A5E" stroke-width=".7" fill="none"/>' + ''.join(
-    f'<ellipse cx="{184+k*2.4}" cy="{150.4-math.sin(k/2)*1.2}" rx="1.4" ry=".45" fill="#6F8F6E" transform="rotate({-30 if k%2 else 30} {184+k*2.4} {150.4-math.sin(k/2)*1.2})"/>' for k in range(8)))
-items.append('<circle cx="238" cy="146" r="3.4" fill="#7A3B5A"/><path d="M236 146 Q238 143 240 146 Q238 148 236 146 Z" fill="#E7909B"/>')
-for k, it in enumerate(items):
-    cb.append(f'<g class="pop" style="animation-delay:{0.55 + k*0.06:.2f}s;transform-origin:206px 144px">{it}</g>')
-cb.append('</g>')
+# a small static rose for the booking paper's corner
+mini = []
+flower(44, 40, 24, "oldrose", "rose", t0=.6, target=mini)
+leaf(20, 62, 150, 22, .3, target=mini); leaf(70, 60, 20, 20, .4, target=mini)
+mini_svg = ('<svg class="bloom" viewBox="0 0 110 90" aria-hidden="true"><defs>' + ''.join(defs) +
+            '<filter id="blur3" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3"/></filter></defs>' + ''.join(mini) + '</svg>')
 
-# little gold sparkles around the still life
-spk = []
-for k, (x, y, s) in enumerate([(74, 40, 5), (190, 34, 6), (210, 70, 4), (60, 76, 4), (100, 22, 3.5), (236, 110, 4.5), (18, 92, 3.5)]):
-    spk.append(f'<path class="tw" style="animation-delay:{k*0.45:.2f}s;transform-origin:{x}px {y}px" d="M{x} {y-s} L{x+s*.22} {y-s*.22} L{x+s} {y} L{x+s*.22} {y+s*.22} L{x} {y+s} L{x-s*.22} {y+s*.22} L{x-s} {y} L{x-s*.22} {y-s*.22} Z" fill="#C9A24E"/>')
-
-glow = ''.join(f'<circle class="bk" cx="{x}" cy="{y}" r="{r}" fill="#F1D27E" fill-opacity="{o}" filter="url(#hb6)" style="animation-delay:{d}s"/>' for x,y,r,o,d in [(130,70,46,.22,0),(52,112,18,.3,1.2),(206,138,22,.22,2.1),(84,40,8,.4,.6),(186,46,7,.45,1.8),(238,96,6,.4,2.6),(28,70,6,.35,3.1)])
-hero = ('<svg class="still" viewBox="8 14 262 144" aria-hidden="true">'
-        '<defs><filter id="hb2" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter><filter id="hb6" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="6"/></filter></defs>'
-        + glow + ''.join(out) + vase + coupe_svg + ''.join(cb) + ''.join(spk) + '</svg>')
-
-# ---------------------------------------------------------------- page edits
+# ------------------------------------------------------------------ page edits
 h = src
-
-# palette: ivory card on sage, gold frame, deep-green ink
 h = re.sub(r':root \{.*?color-scheme: dark;\n  \}', '''  :root {
-    --ground: #CFD8C6;        /* page: Fresh Flower Bar sage */
-    --card: #FFFBF4;          /* invitation card: warm ivory */
-    --card-deep: #F6EAE2;     /* card bottom: a blush wash */
-    --gold: #B8933E;          /* their gold: frame, line art, rules */
+    --ground: #E7DCCB;        /* page: warm parchment */
+    --card: #FBF6EC;          /* invitation card */
+    --card-deep: #F1E6D4;
+    --gold: #B8933E;          /* gold: frame, rules, small caps */
     --gold-dim: rgba(184,147,62,.5);
-    --cream: #2E4636;         /* display text on card: deep garden green */
-    --cream-soft: #5F7062;    /* secondary text on card */
+    --cream: #2E3A2F;         /* display text on card: deep garden green */
+    --cream-soft: #5F6E5F;
     --berry: #B23A48;
-    --pine: #9DB4A2;          /* eucalyptus: other bars */
+    --pine: #9DB4A2;
     --paper: #FFFBF4;         /* booking card: ivory */
     --paper-line: rgba(184,147,62,.55);
-    --ink: #2E4636;           /* headings, buttons */
+    --ink: #2E3A2F;
     --ink-soft: #6B7A6A;
     --display: "Cormorant Garamond", "Garamond", "Georgia", serif;
     --body: "Jost", "Futura", "Helvetica Neue", Arial, sans-serif;
     color-scheme: light;
   }'''.replace('  :root', ':root', 1), h, count=1, flags=re.S)
-assert '--ground: #CFD8C6' in h
+assert '--ground: #E7DCCB' in h
 
-extra_css = '''
-  /* ---------- Fresh Flower Bar edition ---------- */
-  .invite { box-shadow: 0 24px 60px rgba(46,70,54,.22); }
-  .actions .pill { background: rgba(255,255,255,.55); }
+css = '''
+  /* ---------- Fresh Flower Bar edition: a painted still life on parchment ---------- */
+  .invite { box-shadow: 0 24px 60px rgba(70,50,30,.22); background: radial-gradient(120% 80% at 50% 0%, var(--card) 0%, var(--card-deep) 100%); }
+  .frame { padding-top: 0; overflow: hidden; }
+  .still { display: block; width: calc(100% + 32px); margin: 0 -16px 18px; }
+  .corner { display: none; }
+  .actions .pill { background: rgba(255,255,255,.5); }
   .pill:hover { background: #fff; }
-  .foot { color: rgba(46,70,54,.6); }
-  .credit, .credit a { color: rgba(46,70,54,.6); }
-  .still { display: block; width: 108%; max-width: 380px; margin: -30px -4% 10px; overflow: visible; }
+  .foot { color: rgba(46,58,47,.6); }
+  .credit, .credit a { color: rgba(46,58,47,.6); }
   h1 span { font-size: .34em; letter-spacing: .24em; margin-top: 12px; color: var(--gold); font-weight: 500; }
   .when { white-space: nowrap; font-size: clamp(16px, 4.7vw, 21px) !important; }
-  .glitter { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
-  .glitter i { position: absolute; top: -8px; width: 3px; height: 3px; border-radius: 50%; background: #D4AF5A; opacity: 0; box-shadow: 0 0 4px rgba(212,175,90,.8); }
-  .glitter i:nth-child(3n) { width: 2px; height: 2px; background: #E9CF8A; }
-  .glitter i:nth-child(4n) { width: 4px; height: 2px; border-radius: 1px; background: #C9A24E; }
+  .petals { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .petals b { position: absolute; top: -14px; width: 10px; height: 7px; border-radius: 80% 0 80% 0; background: var(--c); opacity: 0; box-shadow: inset 0 0 2px rgba(80,30,30,.15); }
   .book { text-align: center; }
   .book h2 { margin-bottom: 8px; }
   .book .price { margin: 0 0 14px; font-family: var(--display); font-size: 20px; color: var(--ink-soft); }
@@ -268,57 +341,59 @@ extra_css = '''
   .book .field { text-align: left; }
   input[type="email"] { width: 100%; font: 17px var(--body); color: var(--ink); padding: 12px 14px; border: 1px solid var(--gold); border-radius: 4px; background: #fff; }
   #form-view, #thanks-view { display: none !important; }
-  .rsvp .bloom { opacity: .55; }
+  .rsvp .bloom { width: 86px; height: 70px; opacity: .9; right: 4px; bottom: auto; top: 4px; }
+  @media (min-width: 900px) { .wrap { max-width: 520px; } .frame { padding-left: 28px; padding-right: 28px; } .still { width: calc(100% + 56px); margin-left: -28px; margin-right: -28px; } }
+  .rsvp { color-scheme: light; }
+  .btn:hover { background: #3F5240; }
   @media (prefers-reduced-motion: no-preference) {
-    .still .pop { transform-box: view-box; animation: pop .7s ease-out both; }
-    .still .sway { transform-box: view-box; animation: swayz 7s ease-in-out infinite; }
-    .still .draw { stroke-dasharray: 160; stroke-dashoffset: 160; animation: draw2 1.6s ease-out .2s both; }
-    .still .cfill { transform-box: view-box; transform-origin: 43px 126px; animation: fill 1.6s cubic-bezier(.4,0,.2,1) .6s both; }
-    .still .fizz { animation: slosh 3.2s linear infinite; }
-    .still .bub { animation-name: rise; animation-timing-function: ease-in; animation-iteration-count: infinite; }
-    .still .glint { animation: glint 4.5s ease-in-out 2s infinite; }
-    .still .tw { transform-box: view-box; animation: twinkle 3.4s ease-in-out infinite; }
-    .still .bk { animation: bokeh 6s ease-in-out infinite; }
-    .still .clink { stroke-dasharray: 10; stroke-dashoffset: 10; animation: clink 4s ease-out 2.4s infinite; }
-    .glitter i { animation: fall linear infinite; }
+    .bouquet { animation: swaygrp 9s ease-in-out 4s infinite; }
+    .breathe { transform-box: view-box; animation: breathe2 7s ease-in-out 4.5s infinite; }
+    .pt { transform-box: view-box; opacity: 0; animation: unfurl 1.5s cubic-bezier(.2,.75,.2,1) both; }
+    .bud { transform-box: view-box; animation: budin .55s ease-out var(--d0) both, budout .9s ease-in var(--d1) forwards; }
+    .bshadow { opacity: 0; animation: fadein 1.2s ease-out both; }
+    .lf { transform-box: view-box; animation: grow 1.1s cubic-bezier(.2,.75,.2,1) both; }
+    .stem { stroke-dasharray: 140; stroke-dashoffset: 140; animation: draw2 1.4s ease-out both; }
+    .lightpool { animation: lightbreathe 6s ease-in-out infinite; }
+    .mote { opacity: 0; animation-name: mote; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+    .cfill { transform-box: view-box; animation: fill 1.8s cubic-bezier(.4,0,.2,1) 1.2s both; }
+    .fizz { animation: slosh 3.2s linear infinite; }
+    .bub { animation-name: rise; animation-timing-function: ease-in; animation-iteration-count: infinite; }
+    .glint { animation: glint 4.5s ease-in-out 3s infinite; }
+    .bfly { animation: flight 18s ease-in-out 5s infinite both; opacity: 0; }
+    .bflyin { animation: hover 2.4s ease-in-out infinite; }
+    .wing { animation: flutter .42s ease-in-out infinite alternate; }
+    .wl { animation-direction: alternate-reverse; }
+    .petals b { animation: petalfall linear infinite; }
     .book .btn { position: relative; overflow: hidden; }
     .book .btn::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 40%, rgba(255,240,200,.35) 50%, transparent 60%); background-size: 260% 100%; animation: sweep 6s ease-in-out 2s infinite; }
   }
-
-  .glitter b { position: absolute; top: -12px; width: 9px; height: 6px; border-radius: 80% 0 80% 0; background: var(--c); opacity: 0; box-shadow: inset 0 0 2px rgba(0,0,0,.08); }
-  .corner { width: 128px; height: 128px; }
-  @media (prefers-reduced-motion: no-preference) {
-    .breathe { transform-box: view-box; animation: breathe2 6s ease-in-out 3.5s infinite; }
-    .ring, .bud, .wash { transform-box: view-box; animation: open 1.5s cubic-bezier(.2,.8,.25,1) both; }
-    .bud { animation-duration: .7s; }
-    .wash { animation: washin 1.8s ease-out both; }
-    .leaf { transform-box: view-box; animation: open .8s ease-out both; }
-    .stem { stroke-dasharray: 120; stroke-dashoffset: 120; animation: draw2 1.2s ease-out both; }
-    .glitter b { animation: petalfall linear infinite; }
-  }
-  @keyframes open { from { opacity: 0; transform: scale(.1) rotate(-40deg) } 60% { opacity: 1 } to { opacity: 1; transform: none } }
-  @keyframes washin { from { opacity: 0; transform: scale(.3) } to { opacity: 1; transform: none } }
-  @keyframes breathe2 { 0%,100% { transform: scale(1) } 50% { transform: scale(1.045) } }
+  @keyframes unfurl { 0% { opacity: 0; transform: rotate(var(--r, 0deg)) scale(.08) } 35% { opacity: 1 } 100% { opacity: 1; transform: rotate(0deg) scale(1) } }
+  @keyframes budin { from { opacity: 0; transform: scale(.2) } to { opacity: 1; transform: scale(1) } }
+  @keyframes budout { from { opacity: 1; transform: scale(1) } to { opacity: 0; transform: scale(1.6) } }
+  @keyframes grow { from { opacity: 0; transform: scale(.05) rotate(-25deg) } 40% { opacity: 1 } to { opacity: 1; transform: none } }
+  @keyframes fadein { to { opacity: 1 } }
+  @keyframes breathe2 { 0%,100% { transform: scale(1) } 50% { transform: scale(1.035) } }
+  @keyframes swaygrp { 0%,100% { transform: rotate(0deg) } 50% { transform: rotate(1.2deg) } }
+  @keyframes lightbreathe { 0%,100% { opacity: .75 } 50% { opacity: 1 } }
+  @keyframes mote { 0% { opacity: 0; transform: translate(0,0) } 20% { opacity: .9 } 80% { opacity: .5 } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) } }
+  @keyframes rise { 0% { transform: translateY(0); opacity: 0 } 15% { opacity: 1 } 100% { transform: translateY(-18px); opacity: 0 } }
+  @keyframes flight { 0% { opacity: 0; transform: translate(330px, 30px) rotate(-20deg) } 6% { opacity: 1 } 18% { transform: translate(236px, 58px) rotate(-10deg) } 30% { transform: translate(150px, 34px) rotate(8deg) } 40% { transform: translate(104px, 62px) rotate(-6deg) } 42%,70% { transform: translate(104px, 64px) rotate(0deg); opacity: 1 } 84% { transform: translate(40px, 20px) rotate(14deg); opacity: 1 } 92% { opacity: 0; transform: translate(-30px, -10px) rotate(18deg) } 100% { opacity: 0; transform: translate(330px, 30px) } }
+  @keyframes hover { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-1.5px) } }
+  @keyframes flutter { from { transform: scaleX(1) } to { transform: scaleX(.3) } }
   @keyframes petalfall { 0% { transform: translate(0,0) rotate(0); opacity: 0 } 8% { opacity: .9 } 30% { transform: translate(calc(var(--dx) * .6), 170px) rotate(120deg) } 55% { transform: translate(calc(var(--dx) * -.3), 320px) rotate(220deg) } 85% { opacity: .75 } 100% { transform: translate(var(--dx), 560px) rotate(360deg); opacity: 0 } }
-  @keyframes clink { 0% { stroke-dashoffset: 10; opacity: 0 } 6% { opacity: 1 } 18% { stroke-dashoffset: 0; opacity: 1 } 34%,100% { stroke-dashoffset: -10; opacity: 0 } }
-  @keyframes rise { 0% { transform: translateY(0); opacity: 0 } 15% { opacity: 1 } 100% { transform: translateY(-20px); opacity: 0 } }
-  @keyframes fall { 0% { transform: translate(0, 0) rotate(0); opacity: 0 } 10% { opacity: .95 } 80% { opacity: .8 } 100% { transform: translate(var(--dx, 10px), 560px) rotate(240deg); opacity: 0 } }
 '''
-h = h.replace('</style>\n</head>', extra_css + '</style>\n</head>', 1)
+h = h.replace('</style>\n</head>', css + '</style>\n</head>', 1)
 
-# corners: floral sprays instead of pine boughs
-h = re.sub(r'<svg class="art corner tl".*?</svg>\s*<svg class="art corner br".*?</svg>\s*<svg class="art corner tr".*?</svg>\s*<svg class="art corner bl".*?</svg>', lambda m: CORNERS, h, count=1, flags=re.S)
-assert 'class="breathe"' in h
-# hero: replace the wine glass with the still life; drop the bauble strip
-h = re.sub(r'<svg class="glass".*?</svg>', hero, h, count=1, flags=re.S)
+# remove the sample's corner boughs and sparkles and strip; put the still life at the top of the frame
+h = re.sub(r'\s*<!-- Corner art.*?<!-- Sparkles -->', '\n      ', h, count=1, flags=re.S)
+h = re.sub(r'\s*<svg class="art sparkle.*?</svg>(?=\s*\n)', '', h, flags=re.S)
+h = re.sub(r'\s*<svg class="glass".*?</svg>', '\n      ' + still, h, count=1, flags=re.S)
 h = re.sub(r'\s*<svg class="tea strip".*?</svg>', '', h, count=1, flags=re.S)
+petals = ''.join(f'<b style="left:{random.uniform(2,98):.1f}%;--dx:{random.uniform(-40,40):.0f}px;--c:{random.choice(["#EAB0AE","#F4D6CA","#F6EBD9","#D47A86","#EC8A6C"])};animation-duration:{random.uniform(10,17):.1f}s;animation-delay:{random.uniform(4,18):.1f}s"></b>' for _ in range(12))
+h = h.replace('<div class="frame">', '<div class="frame">\n      <div class="petals" aria-hidden="true">' + petals + '</div>', 1)
+assert 'class="still"' in h and 'class="art corner' not in h
 
-# glitter layer inside the frame
-petals = ''.join(f'<b style="left:{random.uniform(2,98):.1f}%;--dx:{random.uniform(-40,40):.0f}px;--c:{random.choice(["#F0C7BD","#E9A9A0","#F7D3B5","#FBF2E6","#E8976E"])};animation-duration:{random.uniform(9,16):.1f}s;animation-delay:{random.uniform(0,12):.1f}s"></b>' for _ in range(14))
-gl = petals + ''.join(f'<i style="left:{random.uniform(3,97):.1f}%;--dx:{random.uniform(-24,24):.0f}px;animation-duration:{random.uniform(7,13):.1f}s;animation-delay:{random.uniform(0,10):.1f}s"></i>' for _ in range(18))
-h = h.replace('<div class="frame">', '<div class="frame">\n      <div class="glitter" aria-hidden="true">' + gl + '</div>', 1)
-
-# booking panel (interest list now, booking link later), placed before the old RSVP views
+# booking panel
 book = '''<div id="book-view" class="book">
       <h2 id="book-h">Reserve your seat</h2>
       <p class="price" id="price"></p>
@@ -337,8 +412,8 @@ book = '''<div id="book-view" class="book">
     </div>
     '''
 h = h.replace('<div id="form-view">', book + '<div id="form-view">', 1)
+h = re.sub(r'<svg class="bloom".*?</svg>', mini_svg, h, count=1, flags=re.S)
 
-# text, meta, footer
 h = h.replace('<p class="foot">With love, from Mara &amp; Theo</p>', '<p class="foot">Fresh Flower Bar · Fairfield, Connecticut</p>')
 h = h.replace('invites/?ref=sample', 'invites/?ref=guest')
 h = re.sub(r'<title>.*?</title>', '<title>Holiday Flower Arranging Class · Fresh Flower Bar</title>', h, count=1)
@@ -347,11 +422,10 @@ h = re.sub(r'<meta name="description" content="[^"]*">', f'<meta name="descripti
 h = re.sub(r'<meta property="og:description" content="[^"]*">', f'<meta property="og:description" content="{desc}">', h, count=1)
 h = re.sub(r'<meta property="og:title" content="[^"]*">', '<meta property="og:title" content="Holiday Flower Arranging Class · December 16">', h, count=1)
 h = h.replace('https://1294962213sh.github.io/demo/preview.jpg', 'https://1294962213sh.github.io/fresh-flower-bar/preview.jpg')
-h = h.replace('<meta name="theme-color" content="#3A0F1B">', '<meta name="theme-color" content="#CFD8C6">')
+h = h.replace('<meta name="theme-color" content="#3A0F1B">', '<meta name="theme-color" content="#E7DCCB">')
 h = h.replace('href="icon.svg"', 'href="../demo/icon.svg"')
-h = re.sub(r'<!--\n  SAMPLE INVITATION.*?-->', '<!--\n  PREVIEW for Fresh Flower Bar (Sarah O\'Brien): Holiday Flower Arranging Class, Dec 16, 2026.\n  Built from demo/ (the holiday sample). Edit the EVENT block at the bottom.\n  Booking: while EVENT.bookUrl is empty the panel collects an interest list ("Save me a seat");\n  set bookUrl to their booking page to switch the button to "Reserve your seat" (same link, nothing to resend).\n-->', h, count=1, flags=re.S)
+h = re.sub(r'<!--\n  SAMPLE INVITATION.*?-->', '<!--\n  PREVIEW for Fresh Flower Bar (Sarah O\'Brien): Holiday Flower Arranging Class, Dec 16, 2026.\n  Built from demo/ by _templates/build_fresh_flower_bar.py. Edit the EVENT block at the bottom.\n  Booking: while EVENT.bookUrl is empty the panel collects an interest list ("Save me a seat");\n  set bookUrl to their booking page to switch the button to "Reserve your seat" (same link, nothing to resend).\n-->', h, count=1, flags=re.S)
 
-# EVENT block
 ev_new = '''const EVENT = {
   title: "Holiday Flower Arranging",
   subtitle: "Beginners welcome",
@@ -377,24 +451,30 @@ ev_new = '''const EVENT = {
   ],
   hint: "Seats are limited · questions? Call or text (203) 800-3830",
   preview: true,                      // design preview: the interest form doesn't save anything
+  analyticsId: "",                    // a Google Analytics measurement ID for this client's invitations; empty = no tracking
   // Interest-list Google Form (filled in once Sarah says yes)
   interest: { action: "", name: "", email: "", seats: "" },
   form: { action: "", name: "", attending: "", dinner: "" }
 };'''
 h = re.sub(r'const EVENT = \{.*?\n\};', ev_new, h, count=1, flags=re.S)
-assert 'bookUrl' in h
 
-# booking-panel script, appended before </body>
 js = '''<script>
-/* ===== Booking panel: interest list now, booking link later ===== */
+/* ===== Booking panel: interest list now, booking link later. Optional visit/tap counting via EVENT.analyticsId. ===== */
 (function () {
   const $ = id => document.getElementById(id);
+  let track = function () {};
+  if (EVENT.analyticsId) {
+    const s = document.createElement("script"); s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + EVENT.analyticsId; document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); }
+    gtag("js", new Date()); gtag("config", EVENT.analyticsId, { page_title: EVENT.title });
+    track = (name, params) => gtag("event", name, params || {});
+  }
   $("price").innerHTML = EVENT.price || ""; $("price").hidden = !EVENT.price;
   $("incl").innerHTML = (EVENT.includes || []).map(t => "<li>" + t + "</li>").join("");
   $("book-hint").textContent = EVENT.hint || "";
   if (EVENT.bookUrl) {
     const b = $("book-btn"); b.href = EVENT.bookUrl; b.hidden = false;
-    b.addEventListener("click", () => { try { window.gtag && gtag("event", "reserve_click"); } catch (e) {} });
+    b.addEventListener("click", () => track("reserve_click"));
     return;
   }
   $("book-h").textContent = "Save me a seat";
@@ -413,6 +493,7 @@ js = '''<script>
       const fd = new URLSearchParams(); fd.append(I.name, name); fd.append(I.email, email); fd.append(I.seats, String(n));
       try { await fetch(I.action, { method: "POST", mode: "no-cors", body: fd }); } catch (x) {}
     }
+    track("interest_submit", { seats: n });
     $("interest").hidden = true; $("book-h").hidden = true; $("price").hidden = true; $("incl").hidden = true;
     $("i-thanks-p").textContent = EVENT.preview
       ? "Design preview: nothing was saved. On the live page, " + name.split(" ")[0] + " would hear from Fresh Flower Bar the moment booking opens."
