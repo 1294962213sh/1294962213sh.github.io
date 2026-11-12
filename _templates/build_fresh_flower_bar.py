@@ -265,7 +265,7 @@ vase = ('<g class="vase">'
         '</g>')
 # glamour: gold sparkles twinkling over the bouquet, and a string of warm little lights across the top
 sparkles = ''.join(
-    f'<path class="spark" d="M{f(x)} {f(y-s)} Q{f(x)} {f(y)} {f(x+s)} {f(y)} Q{f(x)} {f(y)} {f(x)} {f(y+s)} Q{f(x)} {f(y)} {f(x-s)} {f(y)} Q{f(x)} {f(y)} {f(x)} {f(y-s)} Z" fill="#FFF3C4" stroke="#E2B95C" stroke-width=".3" style="transform-origin:{f(x)}px {f(y)}px;animation-delay:{random.uniform(4,14):.1f}s;animation-duration:{random.uniform(2.4,4.6):.1f}s"/>'
+    f'<path class="spark" d="M{f(x)} {f(y-s)} Q{f(x)} {f(y)} {f(x+s)} {f(y)} Q{f(x)} {f(y)} {f(x)} {f(y+s)} Q{f(x)} {f(y)} {f(x-s)} {f(y)} Q{f(x)} {f(y)} {f(x)} {f(y-s)} Z" fill="#FFF3C4" stroke="#E2B95C" stroke-width=".3" style="transform-origin:{f(x)}px {f(y)}px;animation-delay:{random.uniform(0.8,7):.1f}s;animation-duration:{random.uniform(2.4,4.6):.1f}s"/>'
     for x, y, s in [(random.uniform(60, 262), random.uniform(14, 160), random.uniform(1.8, 4.2)) for _ in range(22)])
 lights = ['<path d="M-4 4 Q80 28 160 21 Q240 28 324 4" fill="none" stroke="#4A3A2A" stroke-width=".7" stroke-opacity=".8"/>']
 for i in range(11):
@@ -484,8 +484,8 @@ h = re.sub(r'\s*<!-- Corner art.*?<!-- Sparkles -->', '\n      ', h, count=1, fl
 h = re.sub(r'\s*<svg class="art sparkle.*?</svg>(?=\s*\n)', '', h, flags=re.S)
 h = re.sub(r'\s*<svg class="glass".*?</svg>', '\n      ' + still, h, count=1, flags=re.S)
 h = re.sub(r'\s*<svg class="tea strip".*?</svg>', '', h, count=1, flags=re.S)
-petals = ''.join(f'<b style="left:{random.uniform(2,98):.1f}%;--dx:{random.uniform(-50,50):.0f}px;--c:{random.choice(["#EAB0AE","#F4D6CA","#F6EBD9","#D47A86","#EC8A6C","#B8232F","#FFFBF2","#C9A24A"])};transform:scale({random.uniform(.7,1.25):.2f});animation-duration:{random.uniform(9,16):.1f}s;animation-delay:{random.uniform(3,16):.1f}s"></b>' for _ in range(26))
-petals += ''.join(f'<i style="left:{random.uniform(1,99):.1f}%;--dx:{random.uniform(-30,30):.0f}px;animation-duration:{random.uniform(11,19):.1f}s;animation-delay:{random.uniform(2,20):.1f}s;--tw:{random.uniform(.9,1.8):.1f}s"></i>' for _ in range(34))
+petals = ''.join(f'<b style="left:{random.uniform(2,98):.1f}%;--dx:{random.uniform(-50,50):.0f}px;--c:{random.choice(["#EAB0AE","#F4D6CA","#F6EBD9","#D47A86","#EC8A6C","#B8232F","#FFFBF2","#C9A24A"])};transform:scale({random.uniform(.7,1.25):.2f});animation-duration:{random.uniform(9,16):.1f}s;animation-delay:{random.uniform(-9,5):.1f}s"></b>' for _ in range(26))
+petals += ''.join(f'<i style="left:{random.uniform(1,99):.1f}%;--dx:{random.uniform(-30,30):.0f}px;animation-duration:{random.uniform(11,19):.1f}s;animation-delay:{random.uniform(-10,4):.1f}s;--tw:{random.uniform(.9,1.8):.1f}s"></i>' for _ in range(34))
 h = h.replace('<div class="frame">', '<div class="frame">\n      <div class="petals" aria-hidden="true">' + petals + '</div>', 1)
 assert 'class="still"' in h and 'class="art corner' not in h
 
