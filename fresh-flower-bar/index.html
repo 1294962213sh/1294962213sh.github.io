@@ -282,14 +282,18 @@
   .rsvp .bloom { width: 86px; height: 70px; opacity: .9; right: 4px; bottom: auto; top: 4px; }
   @media (min-width: 900px) {
     body { padding: 28px 24px; }
-    .wrap { max-width: 1020px; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
-    .invite { position: sticky; top: 24px; }
-    .frame { padding-left: 28px; padding-right: 28px; padding-bottom: 30px; }
-    .still { width: calc(100% + 56px); margin-left: -28px; margin-right: -28px; }
-    h1 { font-size: 44px; }
-    .rsvp { padding: 30px 32px 28px; }
-    .foot, .credit { grid-column: 1 / -1; }
-    .foot { margin-top: -4px; }
+    .wrap { max-width: 720px; gap: 20px; }
+    .frame { padding-left: 40px; padding-right: 40px; padding-bottom: 30px; }
+    .still { width: calc(100% + 80px); margin-left: -40px; margin-right: -40px; }
+    h1 { font-size: 46px; }
+    .note { max-width: 56ch; margin-left: auto; margin-right: auto; font-size: 17px; }
+    .actions > .actions { display: contents; }
+    .actions { grid-template-columns: 1fr 1fr 1fr; align-items: end; gap: 10px; }
+    .actions .lbl { grid-column: 1 / -1; }
+    .actions .row2 { display: contents; }
+    #map { margin: 0; }
+    .rsvp { padding: 30px 40px 28px; }
+    .incl { max-width: 44ch; }
   }
   .rsvp { color-scheme: light; }
   .btn:hover { background: #3F5240; }
