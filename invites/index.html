@@ -9,9 +9,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#EFE6D6">
 <title>Invite as Art · holiday invitations, made to order</title>
-<meta name="description" content="Describe your holiday party in five lines. Get a chic, animated invitation link with RSVP tracking within 24 hours. No app for your guests. Free preview, $15 to go live.">
+<meta name="description" content="Your party invitation, as a work of art: a custom, animated invitation designed around your idea, with RSVPs built in. Live in 24 hours, no app for guests. Free preview, $15 to go live.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Holiday invitations, designed to your theme. Live link with RSVPs in 24 hours.">
+<meta property="og:title" content="Your party invitation, as a work of art">
 <meta property="og:description" content="Friendsgiving, holiday party, cookie swap, New Year's Eve. A chic, animated invitation link with RSVP tracking. Free preview, $15 to go live. No app for your guests.">
 <meta property="og:image" content="https://1294962213sh.github.io/demo/preview.jpg">
 <meta property="og:image:width" content="1200">
@@ -39,6 +39,11 @@
   .orn::before, .orn::after { content: ""; width: 56px; height: 1px; background: var(--accent); opacity: .8; }
   .orn svg { width: 10px; height: 10px; }
   header { text-align: center; }
+  .hero-cta { margin: 18px auto 2px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .chip { font-size: 13px; letter-spacing: .08em; color: var(--ink-soft); white-space: nowrap; }
+  .chip b { font-family: var(--display); font-size: 20px; font-weight: 600; color: var(--accent-deep); letter-spacing: 0; margin-right: 2px; }
+  .hero-btn { margin-top: 0; width: auto; padding: 14px 26px; }
+  @media (max-width: 959px) { header h1 { font-size: clamp(34px, 9vw, 42px); } header .lede { font-size: 18px; } }
 
   /* phone with the sample inside */
   .phone { position: relative; margin: 0 auto; width: 300px; border-radius: 38px; padding: 12px; background: #2B2420; box-shadow: 0 30px 60px rgba(90,60,40,.25); }
@@ -120,7 +125,8 @@
   .s-brunch   { --bg: #F4EADC; --fg: #4A3A30; --fg2: #8A6E5C; --ac: #C9A86A; }
   .s-nye      { --bg: #0B0F1F; --fg: #F4EBD6; --fg2: #C4B07E; --ac: #D4B36A; }
   .s-brunch h3, .s-holiday h3, .s-nye h3 { font-size: 16px; }
-  .styles-lede { margin: -14px 0 0; font-size: 14px; color: var(--ink-soft); }
+  .styles-lede { margin: -14px auto 0; max-width: 36em; font-size: 14.5px; line-height: 1.6; color: var(--ink-soft); text-wrap: balance; }
+  @media (min-width: 960px) { .styles-lede { max-width: 1000px; font-size: 15.5px; text-wrap: wrap; } }
   .bg .tw, .bg .lp, .bg .ripple, .bg .ripple2 { transform-box: view-box; }
   @media (prefers-reduced-motion: no-preference) {
     .swatch .sin::after { content: ""; position: absolute; inset: -1px; pointer-events: none; background: linear-gradient(115deg, transparent 42%, rgba(255,255,255,.14) 50%, transparent 58%); background-size: 260% 100%; animation: sweep 11s ease-in-out 3s infinite; }
@@ -183,15 +189,19 @@
     body { padding: 48px 40px 64px; }
     .wrap { max-width: 1120px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 40px; row-gap: 40px; align-items: start; }
     .wrap > * { grid-column: 1 / -1; }
-    .wrap > header { grid-column: 1; align-self: center; text-align: left; }
-    header h1 { font-size: 58px; }
-    header .lede { font-size: 22px; max-width: 30em; }
+    .wrap > header { grid-column: 1 / -1; grid-row: 1; max-width: 600px; align-self: center; text-align: left; }   /* text gets a wider lane; the phone sits over the right column */
+    header h1 { font-size: 64px; line-height: 1.05; margin-top: 20px; }
+    header .lede { font-size: 23px; max-width: 24em; margin-top: 26px; line-height: 1.5; text-wrap: pretty; }
+    header .orn { margin-top: 40px; }
     header .orn { justify-content: flex-start; margin-left: 0; }
-    .hero-phone { grid-column: 2; }
-    .styles { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; max-width: 1000px; margin: 0 auto; }
+    .hero-cta { flex-direction: row; justify-content: flex-start; align-items: center; gap: 22px; margin-left: 0; margin-top: 40px; }
+    .hero-btn { width: auto; flex: 0 0 auto; }
+    .hero-phone { grid-column: 2; grid-row: 1; justify-self: end; }   /* phone's right edge lines up with the right edge of the cards below */
+    .styles { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; }   /* full page width: same left/right edges as the top panel */
     /* four in a row: dark · light · dark · light (phones keep burgundy top-left, nocturne bottom-right) */
     .styles .s-nye { order: 3 } .styles .s-brunch { order: 4 }
-    .swatch .sdate { font-size: 12.5px; }
+    .swatch .sdate { font-size: 13.5px; }
+    .swatch h3, .s-brunch h3, .s-holiday h3, .s-nye h3 { font-size: 20px; } .swatch .seye { font-size: 9.5px; } .swatch .spal { font-size: 11px; }
     .wrap > .card { grid-column: auto; align-self: stretch; padding: 30px 32px; }
     .wrap > .chat { grid-column: 1 / -1; justify-self: center; width: 100%; max-width: 640px; align-self: start; }
     .wrap > .faq { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; column-gap: 48px; align-content: start; }
@@ -236,8 +246,12 @@
 
   <header>
     <p class="eyebrow">Invite as Art · holiday invitations, made to order</p>
-    <h1>Describe your party.<br>Get a live invitation link in 24 hours.</h1>
-    <p class="lede">Friendsgiving to New Year's Eve: a chic, animated page your guests open in WhatsApp or iMessage, with RSVPs built in. No app. No account for anyone.</p>
+    <h1>Your party invitation, as a work of art.</h1>
+    <p class="lede">A custom, animated invitation designed around your idea, with RSVPs built in. Live in 24 hours; guests open it from a text, no app.</p>
+    <div class="hero-cta">
+      <span class="chip"><b>$<span id="price-hero">15</span></b> · free preview first</span>
+      <button class="btn hero-btn" id="start-hero" type="button">Tell me about your party &rarr;</button>
+    </div>
     <div class="orn" aria-hidden="true"><svg viewBox="0 0 10 10"><path d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8 Z" fill="currentColor"/></svg></div>
   </header>
 
@@ -249,8 +263,8 @@
   </div>
 
   <section aria-labelledby="h-styles">
-    <h2 id="h-styles" style="text-align:center">A few directions</h2>
-    <p class="styles-lede" style="text-align:center;margin-bottom:16px">One friend group's holiday season, four invitations — every one designed fresh. These are moods, not templates: describe your own theme and ideas, or name an artist, a fashion house or an art style you love, and I'll work in that spirit.</p>
+    <h2 id="h-styles" style="text-align:center">For inspiration</h2>
+    <p class="styles-lede" style="text-align:center;margin-bottom:16px">Moods, not templates — each one designed fresh. Bring your own theme, or name an artist, fashion house or art style you love.</p>
     <div class="styles">
       <article class="swatch s-holiday">
         <div class="sframe"><div class="sin">
@@ -410,7 +424,7 @@ const SETTINGS = {
 };
 /* ========================================= */
 const $ = id => document.getElementById(id);
-$("price").textContent = SETTINGS.price; $("price2").textContent = SETTINGS.price; $("price3").textContent = SETTINGS.price; $("addon").textContent = SETTINGS.addOnPrice;
+$("price").textContent = SETTINGS.price; $("price-hero").textContent = SETTINGS.price; $("price2").textContent = SETTINGS.price; $("price3").textContent = SETTINGS.price; $("addon").textContent = SETTINGS.addOnPrice;
 if (SETTINGS.orderUrl) { $("order").href = SETTINGS.orderUrl; $("order").hidden = false; }
 if (SETTINGS.etsyUrl) { $("etsy").href = SETTINGS.etsyUrl; $("etsy").hidden = false; $("etsy").addEventListener("click", () => window.track("etsy_click")); }
 const canSend = !!(SETTINGS.formEndpoint || SETTINGS.requestEmail);
@@ -443,6 +457,7 @@ function showStep() {
   $("back").hidden = step === 0; $("next").textContent = step === QS.length - 1 ? "Send my request" : "Next";
   $("cerr").hidden = true; $("a").focus();
 }
+$("start-hero").onclick = () => $("start").click();
 $("start").onclick = () => { window.track("request_start"); $("chat").hidden = false; step = 0; showStep(); $("chat").scrollIntoView({ behavior: "smooth", block: "start" }); };
 $("back").onclick = () => { answers[QS[step].k] = $("a").value.trim(); step--; showStep(); };
 function brief() {
