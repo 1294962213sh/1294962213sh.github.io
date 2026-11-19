@@ -603,6 +603,8 @@ js = '''<script>
 '''
 h = h.replace('</body>', js + '</body>', 1)
 
+import sys; sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent)); from painted_opening import apply as painted_opening
+h = painted_opening(h)   # Nov 19: oil-painting opening + paper grain (see _templates/painted_opening.py)
 outdir = REPO / 'demo-workshop'; outdir.mkdir(exist_ok=True)
 (outdir / 'index.html').write_text(h)
 print('written', len(h))
